@@ -61,6 +61,10 @@ android/             # Android WebView wrapper project
 
 14 chords, ordered: red, yellow, blue, black, green, orange, purple, pink, brown | gray, tan, lightgreen, lightpurple, skyblue. First 9 are "white chords", last 5 are "black chords" (FIRST_BLACK_INDEX = 9).
 
+## Conventions
+
+- Use brief commit messages (one line, no body)
+
 ## Attribution
 
 Licensed Apache 2.0. Original work by Paul Ganssle. See NOTICE file.
