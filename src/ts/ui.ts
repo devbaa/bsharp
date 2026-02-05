@@ -3,8 +3,9 @@ import { CHORDS_TONE } from './data';
 import {
     STATE, getCurrentProfile, getCurrentTargetNumber, getSessionHistory,
     saveState, newProfile, GUEST_USER_ID, DEFAULT_TARGET_NUMBER,
-    DEFAULT_SHOW_CHORD_MODE, DEFAULT_CHORD_DISPLAY_MODE,
+    DEFAULT_SHOW_CHORD_MODE, DEFAULT_REVEAL_CHORD_MODE, DEFAULT_CHORD_DISPLAY_MODE,
     DEFAULT_SINGLE_NOTE_MODE, DEFAULT_SINGLE_NOTE_CORRECTNESS_MODE,
+    DEFAULT_PERSIST_REACTION_FACE,
 } from './state';
 import {
     calculatePercentage, calculateNeutralLevel, getCatEmoji, normalizeStatsObject
@@ -434,6 +435,18 @@ export function openProfileAdder(): void {
 
     (document.getElementById('profile_name_setting') as HTMLInputElement).disabled = false;
     (document.getElementById('target_number_setting') as HTMLInputElement).value = String(DEFAULT_TARGET_NUMBER);
+
+    const showChordMode = document.getElementById('show-chord-name-mode-selector') as HTMLSelectElement | null;
+    if (showChordMode) showChordMode.value = DEFAULT_SHOW_CHORD_MODE;
+    const revealChordMode = document.getElementById('chord-reveal-mode-selector') as HTMLSelectElement | null;
+    if (revealChordMode) revealChordMode.value = DEFAULT_REVEAL_CHORD_MODE;
+    const chordDisplayMode = document.getElementById('chord-name-display-mode-selector') as HTMLSelectElement | null;
+    if (chordDisplayMode) chordDisplayMode.value = DEFAULT_CHORD_DISPLAY_MODE;
+    (document.getElementById('persist_reaction_face_setting') as HTMLInputElement).checked = DEFAULT_PERSIST_REACTION_FACE;
+
+    // Pre-select the first icon
+    const firstIcon = profileContainer.querySelector("input[name='profile_icon_selector']") as HTMLInputElement | null;
+    if (firstIcon) firstIcon.checked = true;
 }
 
 export function closeProfileAdder(): void {
