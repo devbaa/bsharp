@@ -329,8 +329,10 @@ function getProfileSettings(): {
     const showChordMode = (document.getElementById('show-chord-name-mode-selector') as HTMLSelectElement).value;
     const revealChordMode = (document.getElementById('chord-reveal-mode-selector') as HTMLSelectElement).value;
     const chordDisplayMode = (document.getElementById('chord-name-display-mode-selector') as HTMLSelectElement).value;
-    const singleNoteMode = (document.getElementById('single-note-trainer-mode-selector') as HTMLSelectElement).value;
-    const singleNoteCorrectnessMode = (document.getElementById('single-note-trainer-correctness-mode-selector') as HTMLSelectElement).value;
+    const singleNoteModeElem = document.getElementById('single-note-trainer-mode-selector') as HTMLSelectElement | null;
+    const singleNoteMode = singleNoteModeElem ? singleNoteModeElem.value : DEFAULT_SINGLE_NOTE_MODE;
+    const singleNoteCorrectnessModeElem = document.getElementById('single-note-trainer-correctness-mode-selector') as HTMLSelectElement | null;
+    const singleNoteCorrectnessMode = singleNoteCorrectnessModeElem ? singleNoteCorrectnessModeElem.value : DEFAULT_SINGLE_NOTE_CORRECTNESS_MODE;
     const targetNumber = (document.getElementById('target_number_setting') as HTMLInputElement).value;
     const persistReactionFace = (document.getElementById('persist_reaction_face_setting') as HTMLInputElement).checked;
 
@@ -402,8 +404,10 @@ function populateProfileSettings(): void {
     (document.getElementById('show-chord-name-mode-selector') as HTMLSelectElement).value = profile.show_chord_mode;
     (document.getElementById('chord-reveal-mode-selector') as HTMLSelectElement).value = profile.reveal_chord_mode;
     (document.getElementById('chord-name-display-mode-selector') as HTMLSelectElement).value = profile.chord_display_mode;
-    (document.getElementById('single-note-trainer-mode-selector') as HTMLSelectElement).value = profile.single_note_mode;
-    (document.getElementById('single-note-trainer-correctness-mode-selector') as HTMLSelectElement).value = profile.single_note_correctness_mode;
+    const singleNoteModeElem = document.getElementById('single-note-trainer-mode-selector') as HTMLSelectElement | null;
+    if (singleNoteModeElem) singleNoteModeElem.value = profile.single_note_mode;
+    const singleNoteCorrectnessModeElem = document.getElementById('single-note-trainer-correctness-mode-selector') as HTMLSelectElement | null;
+    if (singleNoteCorrectnessModeElem) singleNoteCorrectnessModeElem.value = profile.single_note_correctness_mode;
     (document.getElementById('persist_reaction_face_setting') as HTMLInputElement).checked = profile.persist_reaction_face;
 
     profileDialog.dataset.id = String(profile.id);
