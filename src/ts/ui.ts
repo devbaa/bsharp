@@ -569,21 +569,32 @@ function clearStatsHistoryModal(): void {
     }
 }
 
+function appendEmptyStatsMessage(container: HTMLElement): void {
+    const msg = document.createElement('div');
+    msg.classList.add('stats-history-empty');
+    msg.textContent = 'No sessions recorded yet.';
+    container.appendChild(msg);
+}
+
 function populateStatsHistoryModal(): void {
     clearStatsHistoryModal();
+    const statsContainer = document.getElementById('stats-history-container')!;
     const history = getSessionHistory();
     const profileHistory = history[String(STATE.current_profile)];
-    if (!profileHistory) return;
+    if (!profileHistory) {
+        appendEmptyStatsMessage(statsContainer);
+        return;
+    }
 
     const array = Object.values(profileHistory).flat();
     array.sort((a, b) => b.updated_time - a.updated_time);
 
-    const statsContainer = document.getElementById('stats-history-container')!;
-
+    let hasEntries = false;
     for (const session of array) {
         const correct = session.correct;
         const identifications = session.identifications;
         if (identifications === 0) continue;
+        hasEntries = true;
 
         const percentage = calculatePercentage(correct, identifications);
         const emoji = getCatEmoji(calculateNeutralLevel(percentage));
@@ -607,6 +618,10 @@ function populateStatsHistoryModal(): void {
         div.appendChild(stats);
 
         statsContainer.appendChild(div);
+    }
+
+    if (!hasEntries) {
+        appendEmptyStatsMessage(statsContainer);
     }
 }
 
