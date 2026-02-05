@@ -1,0 +1,66 @@
+# BSharp: Perfect Pitch Trainer
+
+Rebuilt from [pganssle/cim](https://github.com/pganssle/cim) (Chord Identification Method Trainer). The original CIM source lives at `~/dev/cim`.
+
+## Architecture
+
+- **Frontend**: TypeScript + HTML, bundled with esbuild into a single `bsharp.js` IIFE
+- **Styling**: SCSS compiled with sass CLI. Uses Fork Awesome for icons
+- **Android**: WebView wrapper in Kotlin (`android/` directory)
+- **Audio**: Pre-generated MP3 chord files only (42 files in `static/chords/`). No Tone.js
+
+## Build
+
+```bash
+npm install          # First time only
+make build           # esbuild + sass + copy to dist/
+make check           # TypeScript type checking (tsc --noEmit)
+make android-deploy  # Build + copy dist/ to android assets
+make clean           # Remove dist/
+```
+
+## Project Structure
+
+```
+src/
+  index.html         # Main HTML (hardcoded flags, selectors, SVG clip paths)
+  ts/
+    main.ts          # Entry point, DOMContentLoaded, window function exposure
+    types.ts         # TypeScript interfaces
+    data.ts          # Chord definitions, audio file list, note computations
+    utils.ts         # Math helpers, formatting, timestamps
+    state.ts         # localStorage, profiles, session history
+    stats.ts         # Confusion matrix, adaptive weighting algorithm
+    audio.ts         # MP3 playback via <audio> elements
+    game.ts          # Game flow: chord selection, flag tapping, play/next
+    ui.ts            # DOM manipulation, modals, profile UI, settings
+    session_cleanup.ts # Session history cleanup on startup
+  scss/
+    style.scss       # Entry: imports fork-awesome, theme, cim, note-shapes
+    _variables.scss  # Color/theme variables
+    _theme.scss      # Typography, base layout, theme toggle
+    _cim.scss        # Main app styles (flags, controls, modals, colors)
+    _note-shapes.scss # Note-to-geometric-shape CSS (clip paths)
+    css/
+      fork-awesome.css  # Icon font CSS (font paths point to static/fonts/)
+static/
+  chords/            # 42 pre-generated chord MP3s
+  fonts/             # Fork Awesome font files (woff2, woff, ttf, eot, svg)
+android/             # Android WebView wrapper project
+```
+
+## Key Design Decisions
+
+- **Circular dependency**: `ui.ts` and `game.ts` have circular deps, broken via `registerGameCallbacks()` called in `main.ts`
+- **Window exposure**: Functions are assigned to `window` in `main.ts` for `onclick` HTML attributes
+- **localStorage keys**: `bsharp_state` / `bsharp_session_history` with migration from old `cim_*` keys
+- **Single note trainer**: Code present but feature disabled (requires Tone.js or pre-generated note files)
+- **Instrument selector**: Removed from UI (only one instrument: pre-generated piano)
+
+## Chord Data
+
+14 chords, ordered: red, yellow, blue, black, green, orange, purple, pink, brown | gray, tan, lightgreen, lightpurple, skyblue. First 9 are "white chords", last 5 are "black chords" (FIRST_BLACK_INDEX = 9).
+
+## Attribution
+
+Licensed Apache 2.0. Original work by Paul Ganssle. See NOTICE file.

@@ -1,0 +1,777 @@
+@use "sass:color";
+@import "variables";
+
+body {
+    margin: 0;
+}
+
+div.container {
+    display: flex;
+    flex-direction: column;
+}
+
+body {
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    top: 0;
+}
+
+div.cim-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+div.menu-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+div.hamburger {
+    display: none;
+    font-size: 3rem;
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-right: 1rem;
+    margin-top: 0.5rem;
+
+    @media only screen and (max-width: 768px) {
+        display: block;
+    }
+}
+
+div.expansion-container {
+    display: flex;
+    position: absolute;
+    top: 0;
+    right: 0;
+    flex-direction: row;
+    justify-content: space-around;
+    width: min(350px, 28vw);
+    margin-right: 3rem;
+    margin-top: 1rem;
+
+    @media only screen and (max-width: 768px) {
+        max-width: 400px;
+        display: none;
+    }
+}
+
+div.menu-spacer {
+    display: none;
+}
+
+div.menu-container.visible > div.menu-spacer {
+    flex-grow: 0;
+    max-width: 0;
+    display: block;
+}
+
+div.menu-container.visible > div.expansion-container {
+    display: flex;
+    position: static;
+    flex-grow: 1;
+}
+
+div.menu-container.visible > div.hamburger {
+    position: static;
+    flex-grow: 0;
+}
+
+div.cim {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    width: 100%
+}
+
+/* Flags */
+
+div.flag-spacer {
+    display: none;
+    flex-grow: 1;
+    width: 100%;
+}
+
+div.flag-container.few > div.flag-spacer {
+    @media only screen and (min-width: 768px) {
+        display: block;
+    }
+}
+
+div.flag-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    flex-grow: 2;
+}
+
+div.chord-notes-container {
+    color: #000;
+    font-weight: bold;
+    display: none;
+    justify-content: space-around;
+    align-items: center;
+    width: min(100%, 10em);
+    height: min(10rem, 100%);
+
+    @media only screen and (min-width: 768px) {
+        height: min(10rem, calc(100% - 1em));
+    }
+}
+
+div.note-wrapper {
+    width: 2em;
+    height: 2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    position: relative;
+
+    div.note {
+        width: 100%;
+        height: 100%;
+        background-color: #333;
+        opacity: 0.95;
+    }
+
+    div.note-text {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        right: 0;
+        display: none;
+        color: $fg-color-dark;
+        justify-content: space-around;
+        align-items: center;
+        z-index: 10;
+        font-size: 1.2em;
+    }
+}
+
+div.chord-notes-container > div.note-wrapper {
+    // This makes the notes appear diagonal, from bottom left to top right
+    &:nth-child(1) {
+        align-self: flex-end;
+    }
+
+    &:nth-child(2) {
+        align-self: center;
+    }
+
+    &:nth-child(3) {
+        align-self: flex-start;
+    }
+}
+
+div.use-letters div.note-wrapper div.note-text {
+    display: flex;
+}
+
+
+div.flag-container.chord-notes div.chord-notes-container {
+    display: flex;
+    flex-direction: row;
+}
+
+/* Controls */
+
+div.control-wrapper {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 0;
+    padding: 0.5rem;
+    padding-top: 1rem;
+}
+
+div.control-wrapper > div.hamburger {
+    flex-grow: 0;
+    font-size: 3rem;
+    margin-left: 0.5rem;
+}
+
+div.control-container {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+}
+
+
+div.controls {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+}
+
+div.controls a i {
+    font-size: 5rem;
+    margin-right: 0.25em;
+    margin-left: 0.25em;
+}
+
+body.colorscheme-dark div.controls i.fa {
+    color: #abd1f2;
+}
+
+body.colorscheme-light div.controls i.fa {
+    color: #0077be;
+}
+
+div.controls a.deactivated i.fa {
+    color: #0077be50;
+}
+
+div.stats {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1.5rem;
+    flex-grow: 0;
+}
+
+div.stats div {
+    margin-right: 0.5em;
+    margin-left: 0.5em;
+}
+
+div.emoji-container {
+    font-size: 3rem;
+}
+
+div.stats i.fa {
+    font-size: 2rem;
+}
+
+div.selectors {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    max-height: 5vh; // Fallback
+    max-height: 5dvh;
+}
+
+select.selector {
+    margin-left: 2em;
+    margin-right: 2em;
+}
+
+body.colorscheme-light div.stats.done.perfect span#stats-divider,
+body.colorscheme-light div.stats.done.perfect span#stats-correct,
+body.colorscheme-light div.stats.done span#stats-total {
+    color: green;
+}
+
+body.colorscheme-dark div.stats.done.perfect span#stats-divider,
+body.colorscheme-dark div.stats.done.perfect span#stats-correct,
+body.colorscheme-dark div.stats.done span#stats-total {
+    color: #00bf00;
+}
+
+div.stats-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+    padding: 0px;
+}
+
+div.stats-display {
+    font-size: 2em;
+    font-weight: bold;
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
+    @media only screen and (max-width: 768px) {
+        font-size: 1.2em;
+        margin-left: 0.2em;
+        margin-right: 0.2em;
+    }
+}
+
+div.stats-display#sn-stats-display {
+    display: none;
+
+    font-size: 0.9em;
+
+    &.visible {
+        display: flex;
+    }
+}
+
+div.stats-display span.stats-percent {
+    font-size: 0.5em;
+}
+
+div.flag-wrapper {
+    margin-top: 0.5em;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+    align-self: stretch;
+    width: calc(33% - 1.1em);
+    max-height: 30vh; // Fallback
+    max-height: 30dvh;
+
+    @media only screen and (max-width: 768px) {
+        margin-left: 0.25em;
+        margin-right: 0.25em;
+        width: calc(50% - 0.51em);
+    }
+
+    display: none;
+    opacity: 0;
+}
+
+div.flag-wrapper.visible {
+    display: block;
+    opacity: 1;
+}
+
+div.flag-wrapper.trainer {
+    margin: 0.25rem;
+    align-self: stretch;
+    width: calc(33% - 0.6em);
+}
+
+div.flag-container.few > div.flag-wrapper {
+    @media only screen and (max-width: 768px) {
+        width: calc(100% - 0.51em);
+    }
+}
+
+
+div.flag-container.many > div.flag-wrapper {
+    width: calc(25% - 1.2em);
+
+    @media only screen and (max-width: 768px) {
+        width: calc(33% - 1.1em);
+    }
+}
+
+div.flag {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    position: relative;
+
+    i.answer-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translateY(-50%) translateX(-50%);
+    }
+}
+
+div.flag-correct {
+    position: relative;
+    border: 5px green solid !important;
+}
+
+div.flag-incorrect {
+    border: 5px red solid !important;
+    position: relative;
+}
+
+i.answer-icon {
+    display: none;
+    font-weight: bold;
+    font-size: 3.5em;
+    opacity: 0.75;
+    z-index: 20;
+}
+
+
+i.answer-icon.correct {
+    color: green;
+    &:before {
+        content: "\f00c";
+        -webkit-text-stroke-width: 2px;
+        -webkit-text-stroke-color: black;
+    }
+}
+i.answer-icon.incorrect {
+    color: red;
+    &:before {
+        content: "\f00d";
+        -webkit-text-stroke-width: 2px;
+        -webkit-text-stroke-color: black;
+    }
+}
+
+div.flag-correct i.answer-icon.correct,
+div.flag-incorrect i.answer-icon.incorrect {
+    display: block;
+}
+
+body.colorscheme-dark div.flag {
+    border: 1px solid white;
+}
+
+body.colorscheme-light div.flag {
+    border: 1px solid black;
+}
+
+/* Container styles */
+.infobox-container {
+  display: inline-block;
+  position: relative;
+  font-size: 1.5rem;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+
+  @media only screen and (min-width: 900px) {
+      font-size: 2rem;
+  }
+}
+
+.infobox-trigger {
+    white-space: nowrap;
+}
+
+/* Infobox styles */
+.infobox {
+  position: absolute;
+  top: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 75vw; // Fallback
+  width: 75dvw;
+  @media only screen and (max-width: 400) {
+      width: 95vw; // Fallback
+      width: 95dvw;
+  }
+  max-height: 90vh;
+  max-height: 90dvh;
+  padding: 10px;
+  overflow-y: auto;
+  border: 1px solid #cccccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  display: none;
+  opacity: 0;
+  transition: visibility 0s, opacity 0.3s;
+  z-index: 100;
+}
+
+div.infobox#trainer-infobox {
+    height: 90vh; // Fallback
+    height: 90dvh;
+    display: none;
+    flex-direction: column;
+}
+
+div.infobox.visible#trainer-infobox {
+    display: flex;
+}
+
+div.infobox#trainer-infobox > div.box-title {
+    flex-grow: 0;
+    width: 100%;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+div.trainer-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+    flex-grow: 1;
+    width: 100%;
+}
+
+
+div.infobox.pulldown {
+  width: auto;
+  padding-left: 0;
+  padding-right: 0;
+  transform: unset;
+  left: unset;
+  right: 0%;
+}
+
+body.colorscheme-light span.pulldown-target {
+    color: $fg-color;
+}
+
+body.colorscheme-dark span.pulldown-target {
+    color: $fg-color-dark;
+}
+
+div.pulldown-item {
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 5px;
+    padding-right: 10px;
+}
+
+body.colorscheme-dark div.pulldown-item:hover {
+    background-color: color.scale($bg-color-dark, $lightness: 12.5%);
+}
+
+body.colorscheme-light div.pulldown-item:hover {
+    background-color: color.scale($bg-color, $lightness: -12.5%);
+}
+
+div.pulldown-item > i.profile-settings-icon,
+div.pulldown-item > i.profile-icon {
+    margin-right: 0.75rem;
+}
+
+div.pulldown-item > span.profile-name {
+    white-space: nowrap;
+}
+
+div.trigger-container > a {
+    text-decoration: none;
+}
+
+div.trigger-container > a:hover {
+    text-decoration: none;
+}
+
+body.colorscheme-light .infobox {
+  color: $fg-color;
+  background-color: $bg-color;
+}
+
+body.colorscheme-dark .infobox {
+  color: $fg-color-dark;
+  background-color: $bg-color-dark;
+}
+
+.infobox.visible {
+    display: block;
+    opacity: 1;
+}
+
+/* Modals */
+// Profile adder
+
+.profile-info-container {
+    display: none;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 50vw; // Fallback
+    width: 50dvw;
+    padding: 10px;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: visibility 0s, opacity 0.3s;
+    z-index: 100;
+}
+
+body.colorscheme-dark .profile-info-container {
+    background: $bg-color-dark;
+}
+
+body.colorscheme-light .profile-info-container {
+    background: $bg-color;
+}
+
+.profile-info-container.visible {
+    display: block;
+    opacity: 1;
+}
+
+.profile-info-container .close-button {
+    position: absolute;
+    top: 5%;
+    right: 5%;
+    font-size: 2em;
+}
+
+.profile-info-container button {
+    display: none;
+}
+
+.profile-info-container button.settings-button.visible {
+    display: block;
+}
+
+.profile-info-container button.add-button.visible {
+    display: block;
+}
+
+.profile-info-container div.button-container {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+    align-items: baseline;
+    width: 100%;
+}
+
+a.download-button {
+    display: none;
+}
+
+a.download-button.visible {
+    display: block;
+}
+
+// Stats container
+div.stats-history-container {
+    width: fit-content;
+    max-height: 40vh; // Fallback
+    max-height: 40dvh;
+    max-width: 95vw; // Fallback
+    max-width: 95dvw;
+    overflow-y: auto;
+    flex-flow: column nowrap;
+    align-content: flex-start;
+    overflow-x: none;
+}
+
+div.stats-history-container.visible {
+    display: inline-flex;
+}
+
+div.stats-history-container > div.stats-history-item {
+    display: inline-flex;
+    width: fit-content;
+    white-space: nowrap;
+    flex-flow: row nowrap;
+    max-height: 4rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+body.colorscheme-dark div.stats-history-container > div.stats-history-item > div.stats-color {
+    border: 1px solid white;
+}
+
+body.colorscheme-light div.stats-history-container > div.stats-history-item > div.stats-color {
+    border: 1px solid black;
+}
+
+div.stats-history-item > div.stats-color {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    flex: 0 0 10%;
+    width: 10%;
+}
+
+div.stats-history-item > div.stats-date {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    flex: 0 0 20%;
+    @media only screen and (max-width: 1080px) {
+        font-size: 0.8em;
+    }
+}
+
+div.stats-history-item > div.session-stats {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    font-weight: bold;
+    min-width: 20vw;
+}
+
+.stats-container .close-button {
+    position: absolute;
+    top: 0;
+    right: 0.5rem;
+    font-size: 2em;
+}
+
+
+/* Flags */
+$red: red;
+$yellow: yellow;
+$blue: blue;
+$black: black;
+$green: green;
+$orange: #FF8200;
+$purple: purple;
+$pink: #FC0FC0; // Shocking Pink
+$brown: #81613C;
+$lightgreen: #7FFF00; // Chartreuse
+$tan: #F0E68C; // Actually khaki
+$lightpurple: #DCD0FF; // Lilac
+$gray: gray;
+$skyblue: #87CEFA; // "Light sky blue"
+
+div.red {
+    background-color: $red;
+}
+div.yellow {
+    background-color: $yellow;
+}
+div.blue {
+    background-color: $blue;
+}
+div.black {
+    background-color: $black;
+}
+div.green {
+    background-color: $green;
+}
+div.orange {
+    background-color: $orange;
+}
+div.purple {
+    background-color: $purple;
+}
+div.pink {
+    background-color: $pink;
+}
+div.brown {
+    background-color: $brown;
+}
+div.lightgreen {
+    background-color: $lightgreen;
+}
+div.tan {
+    background-color: $tan;
+}
+
+div.skyblue {
+    background-color: $skyblue;
+}
+
+div.gray {
+    background-color: $gray;
+}
+
+div.lightpurple {
+    background-color: $lightpurple;
+}
