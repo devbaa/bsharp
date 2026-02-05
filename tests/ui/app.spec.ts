@@ -148,6 +148,36 @@ test.describe("BUG: Creating a profile doesn't work", () => {
     // And no JS errors should have occurred
     expect(errors).toHaveLength(0);
   });
+
+  test("non-default settings are saved to the new profile", async ({ page }) => {
+    await page.goto("/");
+    page.on("dialog", (dialog) => dialog.dismiss());
+
+    // Open "Add Profile" dialog
+    await openMenu(page);
+    await page.locator("#profile-infobox-trigger").click();
+    await page.locator("div.pulldown-item").filter({ hasText: "Add Profile" }).click();
+
+    // Fill required fields + set a non-default setting
+    await page.locator("#profile_name_setting").fill("Custom User");
+    await page.locator("input[name='profile_icon_selector'][value='fa-bolt']").check();
+    await page.locator("#persist_reaction_face_setting").check();
+
+    await page.locator("#add-user-button").click();
+
+    // Verify the profile was created with the non-default setting by
+    // re-opening settings and checking the checkbox is still checked.
+    // The menu may still be visible from the earlier flow, so ensure
+    // it's open before clicking the settings trigger.
+    const menu = page.locator("#menu-container");
+    if (!(await menu.evaluate(el => el.classList.contains("visible")))) {
+      await page.locator("#hamburger-link").click();
+      await expect(menu).toHaveClass(/visible/);
+    }
+    await page.locator("#profile-settings-trigger").click();
+    const checkbox = page.locator("#persist_reaction_face_setting");
+    await expect(checkbox).toBeChecked();
+  });
 });
 
 test.describe("BUG: Progress selector opens a tiny empty box", () => {
