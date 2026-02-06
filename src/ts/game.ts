@@ -110,6 +110,7 @@ export function playAudio(): void {
 
     onboardingOnPlay();
     const [chord, duration] = _CURRENT_AUDIO;
+    stopCurrentAudio();
     const safeDuration = isNaN(duration) ? 0.8 : duration;
     setPlayedAfter(safeDuration * 0.8);
     chord.play();

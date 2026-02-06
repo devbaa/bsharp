@@ -43,12 +43,20 @@ export function audioFileElem(audioFile: AudioFileInfo, onEnded: () => void): HT
     return audioFile.elem;
 }
 
+let _currentTrainerAudio: HTMLAudioElement | null = null;
+
 export function playChordFiles(color: string, onEnded: () => void): void {
     const audioFiles = getAudioFiles();
     const files = audioFiles.get(color);
     if (files) {
+        if (_currentTrainerAudio) {
+            _currentTrainerAudio.pause();
+            _currentTrainerAudio.currentTime = 0;
+        }
         const audioFile = randomElem(files);
-        audioFileElem(audioFile, onEnded).play();
+        const elem = audioFileElem(audioFile, onEnded);
+        _currentTrainerAudio = elem;
+        elem.play();
     }
 }
 

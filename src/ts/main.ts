@@ -47,7 +47,9 @@ w.__bsharp_correct_color = () => _CORRECT_COLOR;
 
 // Stop any playing audio when the user clicks an interactive element.
 document.addEventListener('click', (e) => {
-    if ((e.target as Element).closest('[onclick], button, a, select, input')) {
+    const target = e.target as Element;
+    if (target.closest('#play-button, #next-chord')) return;
+    if (target.closest('[onclick], button, a, select, input')) {
         stopCurrentAudio();
     }
 }, true);
