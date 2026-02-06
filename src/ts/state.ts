@@ -20,6 +20,7 @@ export const DEFAULT_CHORD_DISPLAY_MODE = 'shapes_and_letters';
 export const DEFAULT_SINGLE_NOTE_MODE = 'white_only_on_black';
 export const DEFAULT_SINGLE_NOTE_CORRECTNESS_MODE = 'only_correct';
 export const DEFAULT_PERSIST_REACTION_FACE = true;
+export const DEFAULT_COLOR_SCHEME = 'dark';
 
 export let STATE: AppState = null!;
 export let _SESSION_HISTORY: Record<string, Record<string, SessionStats[]>> | null = null;
@@ -65,6 +66,7 @@ export function newProfile(
     singleNoteMode = DEFAULT_SINGLE_NOTE_MODE,
     singleNoteCorrectnessMode = DEFAULT_SINGLE_NOTE_CORRECTNESS_MODE,
     persistReactionFace = DEFAULT_PERSIST_REACTION_FACE,
+    colorScheme = DEFAULT_COLOR_SCHEME,
 ): Profile {
     if (id === undefined || id === null) {
         id = GUEST_USER_ID + 1;
@@ -83,6 +85,7 @@ export function newProfile(
         single_note_mode: singleNoteMode,
         single_note_correctness_mode: singleNoteCorrectnessMode,
         persist_reaction_face: persistReactionFace,
+        color_scheme: colorScheme,
         stats: newStats(),
         current_chord: DEFAULT_CHORD,
         current_instrument: DEFAULT_INSTRUMENT,
@@ -97,6 +100,7 @@ export function initializeProfileDefaults(profile: Profile): void {
         single_note_mode: DEFAULT_SINGLE_NOTE_MODE,
         single_note_correctness_mode: DEFAULT_SINGLE_NOTE_CORRECTNESS_MODE,
         persist_reaction_face: DEFAULT_PERSIST_REACTION_FACE,
+        color_scheme: DEFAULT_COLOR_SCHEME,
     };
 
     for (const [key, defaultVal] of Object.entries(defaults)) {

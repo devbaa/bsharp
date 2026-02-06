@@ -120,3 +120,21 @@ test("target number persists after save", async ({ page }) => {
   await openProfilePanel(page);
   await expect(page.locator("#target_number_setting")).toHaveValue("42");
 });
+
+test("color scheme setting saved to profile", async ({ page }) => {
+  page.on("dialog", (dialog) => dialog.dismiss());
+
+  // Create a profile with light mode
+  await openProfilePanel(page);
+  await page.locator("#profile-switcher .switcher-add").click();
+  await page.locator("#profile_name_setting").fill("Light Theme User");
+  await page
+    .locator("input[name='profile_icon_selector'][value='fa-bolt']")
+    .check();
+  await page.locator("#color-scheme-selector").selectOption("light");
+  await page.locator("#add-user-button").click();
+
+  // Re-open profile panel and verify select shows "light"
+  await openProfilePanel(page);
+  await expect(page.locator("#color-scheme-selector")).toHaveValue("light");
+});

@@ -5,7 +5,7 @@ import {
     saveState, newProfile, GUEST_USER_ID, DEFAULT_TARGET_NUMBER,
     DEFAULT_SHOW_CHORD_MODE, DEFAULT_REVEAL_CHORD_MODE, DEFAULT_CHORD_DISPLAY_MODE,
     DEFAULT_SINGLE_NOTE_MODE, DEFAULT_SINGLE_NOTE_CORRECTNESS_MODE,
-    DEFAULT_PERSIST_REACTION_FACE,
+    DEFAULT_PERSIST_REACTION_FACE, DEFAULT_COLOR_SCHEME,
 } from './state';
 import {
     calculatePercentage, calculateNeutralLevel, getCatEmoji, normalizeStatsObject
@@ -285,9 +285,14 @@ export function toggleTrainerVisibility(): void {
     }
 }
 
-export function toggleThemeMode(): void {
-    document.body.classList.toggle('colorscheme-dark');
-    document.body.classList.toggle('colorscheme-light');
+export function applyColorScheme(scheme: string): void {
+    if (scheme === 'light') {
+        document.body.classList.remove('colorscheme-dark');
+        document.body.classList.add('colorscheme-light');
+    } else {
+        document.body.classList.remove('colorscheme-light');
+        document.body.classList.add('colorscheme-dark');
+    }
 }
 
 // --- Profile UI ---
@@ -375,6 +380,7 @@ function getProfileSettings(): {
     target_number: string; show_chord_mode: string; reveal_chord_mode: string;
     chord_display_mode: string; single_note_mode: string;
     single_note_correctness_mode: string; persist_reaction_face: boolean;
+    color_scheme: string;
 } {
     const profileContainer = document.getElementById('profile-info-container')!;
     const profileNameElem = document.getElementById('profile_name_setting') as HTMLInputElement;
@@ -397,6 +403,7 @@ function getProfileSettings(): {
     const singleNoteCorrectnessMode = singleNoteCorrectnessModeElem ? singleNoteCorrectnessModeElem.value : DEFAULT_SINGLE_NOTE_CORRECTNESS_MODE;
     const targetNumber = (document.getElementById('target_number_setting') as HTMLInputElement).value;
     const persistReactionFace = (document.getElementById('persist_reaction_face_setting') as HTMLInputElement).checked;
+    const colorScheme = (document.getElementById('color-scheme-selector') as HTMLSelectElement).value;
 
     return {
         name: profileName,
@@ -409,6 +416,7 @@ function getProfileSettings(): {
         single_note_mode: singleNoteMode,
         single_note_correctness_mode: singleNoteCorrectnessMode,
         persist_reaction_face: persistReactionFace,
+        color_scheme: colorScheme,
     };
 }
 
@@ -438,6 +446,9 @@ function clearProfileDialog(): void {
 
     const singleNoteCorrectnessMode = document.getElementById('single-note-trainer-correctness-mode-selector') as HTMLSelectElement;
     if (singleNoteCorrectnessMode) singleNoteCorrectnessMode.value = DEFAULT_SINGLE_NOTE_CORRECTNESS_MODE;
+
+    const colorSchemeSelector = document.getElementById('color-scheme-selector') as HTMLSelectElement;
+    if (colorSchemeSelector) colorSchemeSelector.value = DEFAULT_COLOR_SCHEME;
 
     profileDialog.dataset.id = 'null';
 }
@@ -471,6 +482,7 @@ function populateProfileSettings(): void {
     const singleNoteCorrectnessModeElem = document.getElementById('single-note-trainer-correctness-mode-selector') as HTMLSelectElement | null;
     if (singleNoteCorrectnessModeElem) singleNoteCorrectnessModeElem.value = profile.single_note_correctness_mode;
     (document.getElementById('persist_reaction_face_setting') as HTMLInputElement).checked = profile.persist_reaction_face;
+    (document.getElementById('color-scheme-selector') as HTMLSelectElement).value = profile.color_scheme;
 
     profileDialog.dataset.id = String(profile.id);
 
@@ -522,6 +534,7 @@ export function openProfileAdder(): void {
     const chordDisplayMode = document.getElementById('chord-name-display-mode-selector') as HTMLSelectElement | null;
     if (chordDisplayMode) chordDisplayMode.value = DEFAULT_CHORD_DISPLAY_MODE;
     (document.getElementById('persist_reaction_face_setting') as HTMLInputElement).checked = DEFAULT_PERSIST_REACTION_FACE;
+    (document.getElementById('color-scheme-selector') as HTMLSelectElement).value = DEFAULT_COLOR_SCHEME;
 
     // Pre-select the first icon
     const firstIcon = profileContainer.querySelector("input[name='profile_icon_selector']") as HTMLInputElement | null;
@@ -556,6 +569,7 @@ export function addProfile(): void {
             newProfileValues.single_note_mode,
             newProfileValues.single_note_correctness_mode,
             newProfileValues.persist_reaction_face,
+            newProfileValues.color_scheme,
         );
         STATE.profiles[profile.id] = profile;
         saveState();
@@ -590,6 +604,7 @@ export function submitProfileChanges(): void {
     currentProfile.single_note_mode = profileValues.single_note_mode;
     currentProfile.single_note_correctness_mode = profileValues.single_note_correctness_mode;
     currentProfile.persist_reaction_face = profileValues.persist_reaction_face;
+    currentProfile.color_scheme = profileValues.color_scheme;
 
     saveState();
 
@@ -633,6 +648,7 @@ export function setCurrentProfile(profile: Profile): void {
     resetOnboarding();
     populateProfileUiElements();
     setChordDisplayMode(profile.chord_display_mode);
+    applyColorScheme(profile.color_scheme);
     _changeSelectorFn(profile.current_chord);
     saveState();
 }

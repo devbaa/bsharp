@@ -77,17 +77,12 @@ div.mode-toggle-container {
     font-size: 1.5rem;
 }
 
-body.colorscheme-dark a.colorscheme-toggle {
+body.colorscheme-dark a.download-button {
     color: #dadada;
     background-color: #424242;
 }
 
-body.colorscheme-light a.colorscheme-toggle {
+body.colorscheme-light a.download-button {
     color: #000;
     background-color: #e0e0e0;
-}
-
-a.colorscheme-toggle {
-    margin-right: 0.25rem;
-    margin-left: 0.25rem;
 }

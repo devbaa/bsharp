@@ -7,7 +7,7 @@ import {
 import { initOnboarding } from './onboarding';
 import {
     toggleExpansionBar, toggleInfoboxVisibility, toggleStatsHistoryVisibility,
-    toggleProfilePanel, toggleThemeMode,
+    toggleProfilePanel, applyColorScheme,
     toggleTrainerVisibility, closePanel, initActiveState,
     populateProfileUiElements,
     updateStatsDisplay, setChordDisplayMode,
@@ -33,7 +33,6 @@ w.toggle_infobox_visibility = toggleInfoboxVisibility;
 w.close_panel = closePanel;
 w.toggle_stats_history_visibility = toggleStatsHistoryVisibility;
 w.toggle_profile_panel = toggleProfilePanel;
-w.toggle_theme_mode = toggleThemeMode;
 w.open_profile_adder = openProfileAdder;
 w.close_profile_adder = closeProfileAdder;
 w.add_profile = addProfile;
@@ -67,6 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     populateProfileUiElements();
     setChordDisplayMode(profile.chord_display_mode);
+    applyColorScheme(profile.color_scheme);
     changeSelector(profile.current_chord);
     initOnboarding();
     updateStatsDisplay();

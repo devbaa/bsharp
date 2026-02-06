@@ -1,6 +1,7 @@
 # BSharp TODO
 
 ## Bugs
+- I get some audio stuttering soon after loading the app or on the very first note played.
 
 ## UI
 

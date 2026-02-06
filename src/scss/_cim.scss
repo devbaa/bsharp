@@ -175,11 +175,10 @@ div.flag-container {
     position: absolute;
     inset: 0;
     z-index: 50;
-    background: rgba(0, 0, 0, 0.45);
-    color: white;
     font-size: 1.6rem;
     font-weight: bold;
     text-align: center;
+    padding: 0 2rem;
     pointer-events: none;
     align-items: center;
     justify-content: center;
@@ -193,13 +192,17 @@ div.flag-container {
     .onboarding-arrow {
         font-size: 4rem;
         line-height: 1;
-        animation: bounce-up 1s ease-in-out infinite;
     }
 }
 
-@keyframes bounce-up {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-0.4rem); }
+body.colorscheme-dark #onboarding-overlay {
+    background: rgba(0, 0, 0, 0.45);
+    color: white;
+}
+
+body.colorscheme-light #onboarding-overlay {
+    background: rgba(255, 255, 255, 0.6);
+    color: black;
 }
 
 div.cim-container.panel-open #onboarding-overlay {
