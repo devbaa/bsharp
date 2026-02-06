@@ -482,13 +482,11 @@ div.flag {
 }
 
 div.flag-correct {
-    position: relative;
-    border: 5px green solid !important;
+    outline: 4px solid green;
 }
 
 div.flag-incorrect {
-    border: 5px red solid !important;
-    position: relative;
+    outline: 4px solid red;
 }
 
 i.answer-icon {
@@ -523,11 +521,11 @@ div.flag-incorrect i.answer-icon.incorrect {
 }
 
 body.colorscheme-dark div.flag {
-    border: 1px solid white;
+    box-shadow: inset 0 0 0 2px white;
 }
 
 body.colorscheme-light div.flag {
-    border: 1px solid black;
+    box-shadow: inset 0 0 0 2px black;
 }
 
 /* Container styles */

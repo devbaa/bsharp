@@ -79,6 +79,8 @@ Tests exist to protect behavior, not to increase coverage or test count. Follow 
 - Don't test browser/DOM APIs or localStorage directly — trust the platform
 - Don't re-implement the code under test in the assertion
 
+**Screenshot tests** live in `tests/screenshot/` and use Playwright's `toHaveScreenshot()`. Snapshots are generated per-platform in `*-snapshots/` directories and are gitignored — they must be regenerated locally with `make test-screenshot-update`. Use `__bsharp_test_deterministic_color` to force a known chord color for deterministic screenshots.
+
 **Use TDD when building or changing features.** Write or update both unit and UI tests first to capture the expected behavior, then implement the code to make them pass. Run `make test-unit` to verify.
 
 **Review and delete useless tests.** When new tests are written, review them critically. If a test re-implements the code under test, delete it. If a test would break during a refactor without a behavior change, delete it.
