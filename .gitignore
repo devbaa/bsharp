@@ -1,6 +1,7 @@
 node_modules/
 dist/
 test-results/
+tests/screenshot/*-snapshots/
 .DS_Store
 .idea/
 icon-drafts/

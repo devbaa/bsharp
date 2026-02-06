@@ -11,6 +11,7 @@ import {
     calculatePercentage, calculateNeutralLevel, getCatEmoji, normalizeStatsObject
 } from './stats';
 import { formatDatetime, getCurrentTimestamp, validInt } from './utils';
+import { resetOnboarding } from './onboarding';
 
 let _DOWNLOAD_ENABLED_CLICKS = 0;
 let _DOWNLOAD_ENABLED_LAST_CLICK: number | null = null;
@@ -629,6 +630,7 @@ export function setCurrentProfile(profile: Profile): void {
     }
 
     normalizeStatsObject(profile.stats);
+    resetOnboarding();
     populateProfileUiElements();
     setChordDisplayMode(profile.chord_display_mode);
     _changeSelectorFn(profile.current_chord);

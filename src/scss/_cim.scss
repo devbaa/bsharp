@@ -167,6 +167,43 @@ div.flag-container {
     justify-content: space-around;
     flex-wrap: wrap;
     flex-grow: 2;
+    position: relative;
+}
+
+#onboarding-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 50;
+    background: rgba(0, 0, 0, 0.45);
+    color: white;
+    font-size: 1.6rem;
+    font-weight: bold;
+    text-align: center;
+    pointer-events: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    border-radius: 8px;
+
+    &.visible {
+        display: flex;
+    }
+
+    .onboarding-arrow {
+        font-size: 4rem;
+        line-height: 1;
+        animation: bounce-up 1s ease-in-out infinite;
+    }
+}
+
+@keyframes bounce-up {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-0.4rem); }
+}
+
+div.cim-container.panel-open #onboarding-overlay {
+    display: none;
 }
 
 div.chord-notes-container {

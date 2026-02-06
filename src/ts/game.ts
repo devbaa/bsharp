@@ -9,6 +9,7 @@ import {
 import { getCurrentCoefficients, updateStartTimeIfNeeded, updateStats, normalizeStatsObject } from './stats';
 import { getAudioFiles, audioFileElem, playChordFiles, preloadAudio } from './audio';
 import { populateFlags, updateStatsDisplay, resetCatEmoji, setCatEmoji, setChordDisplayMode, populateProfileUiElements } from './ui';
+import { onPlay as onboardingOnPlay, onAudioEnded as onboardingOnAudioEnded, onFlagSelected as onboardingOnFlagSelected, onNext as onboardingOnNext, showPlayOverlay } from './onboarding';
 
 let _COLORS: string[] | null = null;
 let _CHORDS_ON = false;
@@ -21,6 +22,9 @@ let _EMOJI_LOCK = false;
 let _CURRENT_COEFFICIENTS: number[] | null = null;
 let _TRAINER_PRELOADED = false;
 let _PERSIST_REACTION_FACE_ENABLED = false;
+export function getTestDeterministicColor(): string | null {
+    return (window as unknown as Record<string, unknown>).__bsharp_test_deterministic_color as string | null ?? null;
+}
 
 export function getSelectedColors(): string[] {
     const chordIdx = Object.keys(CHORDS_TONE).findIndex(x => x === STATE.current_chord);
@@ -47,6 +51,7 @@ function setPlayedAfter(delay: number): void {
 
 function onAudioEnded(): void {
     _AUDIO_PLAYED = true;
+    onboardingOnAudioEnded();
 }
 
 export function stopCurrentAudio(): void {
@@ -68,7 +73,7 @@ function _getWeights(): number[] {
 
 export function selectNewColor(): void {
     const weights = _getWeights();
-    _CORRECT_COLOR = randomElem(getSelectedColors(), weights);
+    _CORRECT_COLOR = getTestDeterministicColor() ?? randomElem(getSelectedColors(), weights);
     if (_SELECTED_ELEM !== null) {
         _SELECTED_ELEM.classList.remove('flag-correct');
         _SELECTED_ELEM.classList.remove('flag-incorrect');
@@ -103,6 +108,7 @@ export function playAudio(): void {
     if (playButton && playButton.classList.contains('deactivated')) return;
     if (!_CURRENT_AUDIO) return;
 
+    onboardingOnPlay();
     const [chord, duration] = _CURRENT_AUDIO;
     const safeDuration = isNaN(duration) ? 0.8 : duration;
     setPlayedAfter(safeDuration * 0.8);
@@ -132,6 +138,7 @@ export function selectFlag(elem: HTMLElement): void {
         setCatEmoji(5);
     }
     _SELECTED_ELEM = elem;
+    onboardingOnFlagSelected(isCorrect);
 
     if (getCurrentProfile().persist_reaction_face &&
         getCurrentProfile().stats.identifications < getCurrentTargetNumber()) {
@@ -155,6 +162,8 @@ export function selectFlag(elem: HTMLElement): void {
 export function nextAudio(): void {
     const nextButton = document.getElementById('next-chord');
     if (!nextButton || nextButton.classList.contains('deactivated')) return;
+
+    onboardingOnNext();
 
     if (_CHORDS_ON && getCurrentProfile().reveal_chord_mode === 'after_guess') {
         document.getElementById('flag-holder')!.classList.remove('chord-notes');
@@ -180,6 +189,7 @@ export function resetStats(done = true): void {
     saveState();
     updateStatsDisplay();
     populateAudio();
+    showPlayOverlay();
 }
 
 function retrieveSavedStats(): void {
@@ -218,6 +228,7 @@ export function changeSelector(to?: string): void {
 
     populateFlags(getSelectedColors, chordsOn);
     populateAudio();
+    showPlayOverlay();
     saveState();
 
     for (const color of getSelectedColors()) {

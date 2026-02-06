@@ -1,8 +1,10 @@
 import { loadState, getCurrentProfile, isRecent, STATE } from './state';
 import {
     playAudio, selectFlag, nextAudio, resetStats, changeSelector,
-    onTrainerOpen, playChord, getEmojiLock, stopCurrentAudio
+    onTrainerOpen, playChord, getEmojiLock, stopCurrentAudio,
+    _CORRECT_COLOR
 } from './game';
+import { initOnboarding } from './onboarding';
 import {
     toggleExpansionBar, toggleInfoboxVisibility, toggleStatsHistoryVisibility,
     toggleProfilePanel, toggleThemeMode,
@@ -41,6 +43,7 @@ w.enable_download = enableDownload;
 w.trigger_easter_egg = triggerEasterEgg;
 w.download_state = downloadState;
 w.play_chord = playChord;
+w.__bsharp_correct_color = () => _CORRECT_COLOR;
 
 // Stop any playing audio when the user clicks an interactive element.
 document.addEventListener('click', (e) => {
@@ -63,6 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
     populateProfileUiElements();
     setChordDisplayMode(profile.chord_display_mode);
     changeSelector(profile.current_chord);
+    initOnboarding();
     updateStatsDisplay();
     cleanSessionHistory();
     initActiveState();
