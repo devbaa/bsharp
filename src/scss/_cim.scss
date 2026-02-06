@@ -545,6 +545,11 @@ body.colorscheme-light div.flag {
 
 .infobox-trigger {
     white-space: nowrap;
+    text-decoration: none;
+
+    &:focus, &:hover {
+        text-decoration: none;
+    }
 }
 
 #profile-text {
