@@ -12,9 +12,6 @@ import {
 } from './stats';
 import { formatDatetime, getCurrentTimestamp, validInt } from './utils';
 
-let _CURRENT_INFOBOX: HTMLElement | null = null;
-let _INFOBOX_TRIGGERS: HTMLElement[] = [];
-let _PROFILE_CONTAINER: HTMLElement | null = null;
 let _DOWNLOAD_ENABLED_CLICKS = 0;
 let _DOWNLOAD_ENABLED_LAST_CLICK: number | null = null;
 let _EASTER_EGG_CLICKS = 0;
@@ -25,15 +22,18 @@ let _EASTER_EGG_ENABLED = false;
 let _getEmojiLock: () => boolean = () => false;
 let _resetStatsFn: (done?: boolean) => void = () => {};
 let _changeSelectorFn: (to?: string) => void = () => {};
+let _onTrainerOpenFn: () => void = () => {};
 
 export function registerGameCallbacks(
     getEmojiLock: () => boolean,
     resetStats: (done?: boolean) => void,
     changeSelector: (to?: string) => void,
+    onTrainerOpen: () => void,
 ): void {
     _getEmojiLock = getEmojiLock;
     _resetStatsFn = resetStats;
     _changeSelectorFn = changeSelector;
+    _onTrainerOpenFn = onTrainerOpen;
 }
 
 // --- Emoji ---
@@ -176,19 +176,78 @@ export function setChordDisplayMode(chordMode: string): void {
     }
 }
 
-// --- Infobox Toggle System ---
+// --- Panel Toggle System ---
 
-function toggleVisibility(iboxElem: HTMLElement): void {
-    if (_CURRENT_INFOBOX === iboxElem) {
-        _CURRENT_INFOBOX = null;
-        iboxElem.classList.remove('visible');
-    } else {
-        if (_CURRENT_INFOBOX !== null) {
-            toggleVisibility(_CURRENT_INFOBOX);
-        }
-        iboxElem.classList.add('visible');
-        _CURRENT_INFOBOX = iboxElem;
+let _CURRENT_PANEL: HTMLElement | null = null;
+
+const PANEL_TRIGGER_MAP: Record<string, string> = {
+    'i-infobox': 'i-infobox-trigger',
+    'trainer-infobox': 'trainer-infobox-trigger',
+    'stats-history-container': 'stats-history-trigger',
+    'profile-info-container': 'profile-infobox-trigger',
+};
+
+function setActiveTrigger(panelElem: HTMLElement | null): void {
+    // Clear all active states
+    const homeButton = document.getElementById('home-button');
+    if (homeButton) homeButton.classList.remove('active');
+    for (const triggerId of Object.values(PANEL_TRIGGER_MAP)) {
+        const triggerElem = document.getElementById(triggerId);
+        if (triggerElem) triggerElem.parentElement?.classList.remove('active');
     }
+
+    if (panelElem === null) {
+        // Home is active
+        if (homeButton) homeButton.classList.add('active');
+    } else {
+        const triggerId = PANEL_TRIGGER_MAP[panelElem.id];
+        if (triggerId) {
+            const triggerElem = document.getElementById(triggerId);
+            if (triggerElem) triggerElem.parentElement?.classList.add('active');
+        }
+    }
+}
+
+function setPanelOpen(open: boolean): void {
+    const container = document.querySelector('.cim-container');
+    if (!container) return;
+    if (open) {
+        container.classList.add('panel-open');
+    } else {
+        container.classList.remove('panel-open');
+    }
+}
+
+function togglePanel(panelElem: HTMLElement): void {
+    if (_CURRENT_PANEL === panelElem) {
+        // Close current panel
+        panelElem.classList.remove('visible');
+        _CURRENT_PANEL = null;
+        setPanelOpen(false);
+        setActiveTrigger(null);
+    } else {
+        // Close any open panel first
+        if (_CURRENT_PANEL !== null) {
+            _CURRENT_PANEL.classList.remove('visible');
+        }
+        panelElem.classList.add('visible');
+        _CURRENT_PANEL = panelElem;
+        setPanelOpen(true);
+        setActiveTrigger(panelElem);
+    }
+}
+
+export function closePanel(): void {
+    if (_CURRENT_PANEL !== null) {
+        _CURRENT_PANEL.classList.remove('visible');
+        _CURRENT_PANEL = null;
+        setPanelOpen(false);
+    }
+    setActiveTrigger(null);
+}
+
+export function initActiveState(): void {
+    setActiveTrigger(null);
 }
 
 export function toggleExpansionBar(): void {
@@ -197,27 +256,31 @@ export function toggleExpansionBar(): void {
 }
 
 export function toggleInfoboxVisibility(): void {
-    toggleVisibility(document.getElementById('i-infobox')!);
+    togglePanel(document.getElementById('i-infobox')!);
 }
 
 export function toggleStatsHistoryVisibility(): void {
     populateStatsHistoryModal();
-    toggleVisibility(document.getElementById('stats-history-container')!);
+    togglePanel(document.getElementById('stats-history-container')!);
 }
 
-export function toggleProfileVisibility(): void {
-    toggleVisibility(document.getElementById('profile-container')!);
-}
-
-export function toggleProfileSettingsVisibility(populate = true): void {
-    const ibox = document.getElementById('profile-info-container')!;
-    if (ibox.classList.contains('visible')) {
-        ibox.classList.remove('visible');
+export function toggleProfilePanel(): void {
+    const panel = document.getElementById('profile-info-container')!;
+    if (panel.classList.contains('visible') && _CURRENT_PANEL === panel) {
+        closePanel();
     } else {
-        if (populate) {
-            populateProfileSettings();
-        }
-        ibox.classList.add('visible');
+        populateProfileSwitcher();
+        populateProfileSettings();
+        togglePanel(panel);
+    }
+}
+
+export function toggleTrainerVisibility(): void {
+    const panel = document.getElementById('trainer-infobox')!;
+    togglePanel(panel);
+    // Preload audio when opening trainer
+    if (_CURRENT_PANEL === panel) {
+        _onTrainerOpenFn();
     }
 }
 
@@ -245,50 +308,47 @@ export function populateProfileUiElements(): void {
     if (profileNameSpan) profileNameSpan.textContent = profile.name;
 }
 
-function clearProfilePulldown(): void {
-    const elems = Array.from(document.getElementsByClassName('pulldown-profile'));
-    elems.forEach(elem => elem.remove());
-}
-
-function makeProfileClickHandler(elem: HTMLElement, profile: Profile): void {
-    document.addEventListener('click', function (event) {
-        if (!elem.contains(event.target as Node)) return;
-        setCurrentProfile(profile);
-        toggleProfileVisibility();
-    });
-}
-
-function addProfilePulldownElement(profile: Profile): void {
-    if (_PROFILE_CONTAINER === null) {
-        _PROFILE_CONTAINER = document.getElementById('profile-container');
-    }
-    if (!_PROFILE_CONTAINER) return;
-
-    const divElem = document.createElement('div');
-    divElem.classList.add('pulldown-item', 'pulldown-profile');
-    divElem.dataset.profileId = String(profile.id);
-    makeProfileClickHandler(divElem, profile);
-    _PROFILE_CONTAINER.insertBefore(divElem, _PROFILE_CONTAINER.lastElementChild);
-
-    const iconElem = document.createElement('i');
-    iconElem.classList.add('profile-icon', 'fa', 'fa-solid', profile.icon);
-    divElem.appendChild(iconElem);
-
-    const spanElem = document.createElement('span');
-    spanElem.classList.add('profile-name');
-    spanElem.textContent = profile.name;
-    divElem.appendChild(spanElem);
-}
-
-export function populateProfilePulldown(): void {
+function populateProfileSwitcher(): void {
     if (STATE === null) return;
-    clearProfilePulldown();
+    const container = document.getElementById('profile-switcher');
+    if (!container) return;
+    container.innerHTML = '';
 
-    for (const profile of Object.values(STATE.profiles)) {
-        if (profile.id === GUEST_USER_ID) continue;
-        addProfilePulldownElement(profile);
+    const currentId = getCurrentProfile().id;
+
+    // Add non-guest profiles first, then guest
+    const profiles = Object.values(STATE.profiles).filter(p => p.id !== GUEST_USER_ID);
+    profiles.push(STATE.profiles[GUEST_USER_ID]);
+
+    for (const profile of profiles) {
+        const btn = document.createElement('button');
+        btn.classList.add('switcher-item');
+        if (profile.id === currentId) btn.classList.add('active');
+        btn.type = 'button';
+
+        const icon = document.createElement('i');
+        icon.classList.add('fa', 'fa-solid', profile.icon);
+        btn.appendChild(icon);
+
+        btn.addEventListener('click', () => {
+            setCurrentProfile(profile);
+            populateProfileSwitcher();
+            populateProfileSettings();
+        });
+        container.appendChild(btn);
     }
-    addProfilePulldownElement(STATE.profiles[GUEST_USER_ID]);
+
+    // Add "+" button
+    const addBtn = document.createElement('button');
+    addBtn.classList.add('switcher-item', 'switcher-add');
+    addBtn.type = 'button';
+    const addIcon = document.createElement('i');
+    addIcon.classList.add('fa', 'fa-solid', 'fa-plus');
+    addBtn.appendChild(addIcon);
+    addBtn.addEventListener('click', () => {
+        openProfileAdder();
+    });
+    container.appendChild(addBtn);
 }
 
 // --- Profile Settings ---
@@ -424,9 +484,27 @@ function populateProfileSettings(): void {
 }
 
 export function openProfileAdder(): void {
-    toggleProfileVisibility();
-    toggleProfileSettingsVisibility(false);
+    // Open the profile settings panel in add mode
+    const panel = document.getElementById('profile-info-container')!;
+    if (_CURRENT_PANEL !== panel) {
+        if (_CURRENT_PANEL !== null) {
+            _CURRENT_PANEL.classList.remove('visible');
+        }
+        panel.classList.add('visible');
+        _CURRENT_PANEL = panel;
+        setPanelOpen(true);
+        setActiveTrigger(panel);
+    }
     clearProfileDialog();
+    // Highlight "+" as active in switcher
+    const switcher = document.getElementById('profile-switcher');
+    if (switcher) {
+        for (const item of switcher.querySelectorAll('.switcher-item') as NodeListOf<HTMLElement>) {
+            item.classList.remove('active');
+        }
+        const addBtn = switcher.querySelector('.switcher-add');
+        if (addBtn) addBtn.classList.add('active');
+    }
 
     const profileContainer = document.getElementById('profile-info-container')!;
     for (const elem of profileContainer.querySelectorAll('button.add-button') as NodeListOf<HTMLElement>) {
@@ -450,7 +528,7 @@ export function openProfileAdder(): void {
 }
 
 export function closeProfileAdder(): void {
-    toggleProfileSettingsVisibility();
+    closePanel();
     clearProfileDialog();
 }
 
@@ -480,7 +558,6 @@ export function addProfile(): void {
         );
         STATE.profiles[profile.id] = profile;
         saveState();
-        populateProfilePulldown();
         closeProfileAdder();
         setCurrentProfile(profile);
     }
@@ -514,11 +591,11 @@ export function submitProfileChanges(): void {
     currentProfile.persist_reaction_face = profileValues.persist_reaction_face;
 
     saveState();
-    populateProfilePulldown();
 
     if (profileValues.id === getCurrentProfile().id) {
         setCurrentProfile(getCurrentProfile());
     }
+    populateProfileUiElements();
     closeProfileAdder();
 }
 
@@ -538,7 +615,6 @@ export function deleteProfile(): void {
     }
 
     saveState();
-    populateProfilePulldown();
     closeProfileAdder();
 }
 
@@ -623,33 +699,6 @@ function populateStatsHistoryModal(): void {
     if (!hasEntries) {
         appendEmptyStatsMessage(statsContainer);
     }
-}
-
-// --- Infobox Dismissal ---
-
-const INFOBOX_TRIGGER_IDS = [
-    'trainer-infobox-trigger',
-    'i-infobox-trigger',
-    'profile-infobox-trigger',
-    'profile-settings-trigger',
-    'stats-history-trigger',
-];
-
-export function populateInfoboxTriggers(): void {
-    for (const triggerId of INFOBOX_TRIGGER_IDS) {
-        const elem = document.getElementById(triggerId);
-        if (elem) _INFOBOX_TRIGGERS.push(elem);
-    }
-}
-
-export function setupInfoboxDismissal(): void {
-    document.addEventListener('click', function (event) {
-        if (_CURRENT_INFOBOX === null || _CURRENT_INFOBOX.contains(event.target as Node)) return;
-        for (const infoboxTrigger of _INFOBOX_TRIGGERS) {
-            if (infoboxTrigger.contains(event.target as Node)) return;
-        }
-        toggleVisibility(_CURRENT_INFOBOX);
-    });
 }
 
 // --- Download / Easter Egg ---

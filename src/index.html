@@ -32,16 +32,6 @@
                 margin-top: 10px !important;
             }
 
-            div.profile-info-container {
-                top: 50% !important;
-                transform: translateY(-50%) !important;
-                max-height: 85vh !important;
-                overflow-y: auto !important;
-                width: 90% !important;
-                left: 5% !important;
-                right: 5% !important;
-            }
-
             div.profile-info-container .entry-row {
                 margin-bottom: 15px;
             }
@@ -58,6 +48,13 @@
         <div class="menu-container" id="menu-container">
             <div class="menu-spacer"></div>
             <div class="expansion-container">
+                <div class="infobox-container" id="home-button">
+                    <a href="#"
+                       class="infobox-trigger"
+                       onclick="close_panel()">
+                    <i class="fa fa-solid fa-home"></i>
+                  </a>
+                </div>
                 <div class="infobox-container">
                     <a href="#"
                        id="trainer-infobox-trigger"
@@ -81,30 +78,15 @@
                     <i class="fa fa-solid fa-line-chart"></i>
                   </a>
                 </div>
-                <div class="infobox-container">
-                    <a href="#"
-                       id="profile-settings-trigger"
-                       class="infobox-trigger"
-                       onclick="toggle_profile_settings_visibility()">
-                    <i class="fa fa-solid fa-gear"></i>
-                  </a>
-                </div>
                 <!-- Profiles -->
                 <div class="infobox-container">
-                    <div class="trigger-container" id="user-container">
-                        <a href="#"
-                           id="profile-infobox-trigger"
-                           class="infobox-trigger"
-                           onclick="toggle_profile_visibility()">
-                        <i class="fa fa-solid" id="profile-icon"></i>
-                        <span id="profile-text" class="pulldown-target"></span>
-                      </a>
-                      <div class="pulldown infobox" id="profile-container">
-                          <div class="pulldown-item" onclick="open_profile_adder()">
-                              <i class="profile-icon fa fa-solid fa-user-plus"></i><span class="profile-name">Add Profile</span>
-                          </div>
-                      </div>
-                    </div>
+                    <a href="#"
+                       id="profile-infobox-trigger"
+                       class="infobox-trigger"
+                       onclick="toggle_profile_panel()">
+                    <i class="fa fa-solid" id="profile-icon"></i>
+                    <span id="profile-text"></span>
+                  </a>
                 </div>
             </div>
             <div class="hamburger">
@@ -114,6 +96,104 @@
                    >
                     <i class="fa fa-bars"></i>
                 </a>
+            </div>
+        </div>
+        <div id="panel-area">
+            <!-- Infobox -->
+            <div class="infobox panel" id="i-infobox">
+                <p>This is an implementation of <a href="http://pom.sagepub.com/content/42/1/86">Eguchi's Chord Identification method</a> (paper access can be found via <a href="https://en.wikipedia.org/wiki/Sci-Hub">Sci-Hub</a>). See also <a href="https://ichionkai.co.jp/english3.html">Ichionkai Music School</a>.</p>
+                <p><a href="https://youtu.be/kNfkm6PQC20">Here is a short video explaining how we use it</a>.</p>
+                <p>This is a method for teaching absolute pitch to children aged 2-6. Children should practice ~5x per day for 2-3 minutes (about 20-25 identifications). Chords are always identified with colors, and progress in the sequence <span onclick="trigger_easter_egg()">red</span> (CEG), yellow (CFA), blue (HDG), black (ACF), green (DGH), orange (EGC), purple (FAC), pink (GHD), brown (GCE).</p>
+                <p>Introduce the chords to the children one at a time, spacing out new chord introductions by at least 2 weeks each time. Do not introduce a new chord until the child can identify all presented chords with 100% accuracy.</p>
+            </div>
+
+            <!-- Music player / Trainer -->
+            <div class="infobox panel" id="trainer-infobox">
+              <div class="box-title">
+                  Music Trainer: Play the chords manually
+              </div>
+              <div class="trainer-container">
+                <div class="flag-wrapper trainer visible"><div class="flag trainer red" onclick="play_chord('red');"></div></div>
+                <div class="flag-wrapper trainer visible"><div class="flag trainer yellow" onclick="play_chord('yellow');"></div></div>
+                <div class="flag-wrapper trainer visible"><div class="flag trainer blue" onclick="play_chord('blue');"></div></div>
+                <div class="flag-wrapper trainer visible"><div class="flag trainer black" onclick="play_chord('black');"></div></div>
+                <div class="flag-wrapper trainer visible"><div class="flag trainer green" onclick="play_chord('green');"></div></div>
+                <div class="flag-wrapper trainer visible"><div class="flag trainer orange" onclick="play_chord('orange');"></div></div>
+                <div class="flag-wrapper trainer visible"><div class="flag trainer purple" onclick="play_chord('purple');"></div></div>
+                <div class="flag-wrapper trainer visible"><div class="flag trainer pink" onclick="play_chord('pink');"></div></div>
+                <div class="flag-wrapper trainer visible"><div class="flag trainer brown" onclick="play_chord('brown');"></div></div>
+                <div class="flag-wrapper trainer visible"><div class="flag trainer gray" onclick="play_chord('gray');"></div></div>
+                <div class="flag-wrapper trainer visible"><div class="flag trainer tan" onclick="play_chord('tan');"></div></div>
+                <div class="flag-wrapper trainer visible"><div class="flag trainer lightgreen" onclick="play_chord('lightgreen');"></div></div>
+                <div class="flag-wrapper trainer visible"><div class="flag trainer lightpurple" onclick="play_chord('lightpurple');"></div></div>
+                <div class="flag-wrapper trainer visible"><div class="flag trainer skyblue" onclick="play_chord('skyblue');"></div></div>
+              </div>
+            </div>
+
+            <!-- Statistics History -->
+            <div class="infobox panel stats-history-container" id="stats-history-container"></div>
+
+            <!-- "Add profile" / "Profile settings" dialog -->
+            <div class="profile-info-container panel" id="profile-info-container">
+                <div id="profile-switcher"></div>
+                <div class="entry-row">
+                    <label for="profile_name">Profile Name:</label>
+                    <input type="text" id="profile_name_setting" class="entry">
+                </div>
+                <div class="entry-row">
+                    <label for="profile_icon_selector">Icon:</label><br/>
+                    <input type="radio" name="profile_icon_selector" value="fa-user" id="npis-user">
+                    <label for="npis-user"><i class="fa fa-solid fa-user"></i></label>
+                    <input type="radio" name="profile_icon_selector" value="fa-truck" id="npis-truck">
+                    <label for="npis-truck"><i class="fa fa-solid fa-truck"></i></label>
+                    <input type="radio" name="profile_icon_selector" value="fa-bolt" id="npis-bolt">
+                    <label for="npis-bolt"><i class="fa fa-solid fa-bolt"></i></label>
+                    <input type="radio" name="profile_icon_selector" value="fa-paw" id="npis-paw">
+                    <label for="npis-paw"><i class="fa fa-solid fa-paw"></i></label>
+                    <input type="radio" name="profile_icon_selector" value="fa-soccer-ball-o" id="npis-soccer-ball">
+                    <label for="npis-soccer-ball"><i class="fa fa-solid fa-soccer-ball-o"></i></label>
+                    <input type="radio" name="profile_icon_selector" value="fa-smile-o" id="npis-smile-o">
+                    <label for="npis-smile-o"><i class="fa fa-solid fa-smile-o"></i></label>
+                    <input type="radio" name="profile_icon_selector" value="fa-umbrella" id="npis-umbrella">
+                    <label for="npis-umbrella"><i class="fa fa-solid fa-umbrella"></i></label>
+                    <input type="radio" name="profile_icon_selector" value="fa-trophy" id="npis-trophy">
+                    <label for="npis-trophy"><i class="fa fa-solid fa-trophy"></i></label>
+                    <input type="radio" name="profile_icon_selector" value="fa-taxi" id="npis-taxi">
+                    <label for="npis-taxi"><i class="fa fa-solid fa-taxi"></i></label>
+                </div>
+                <div class="entry-row">
+                    <label for="show_chord_name_mode">Show chord names:</label><br/>
+                    <select class="selector" name="show_chord_name_mode" id="show-chord-name-mode-selector">
+                        <option value="always">Always</option>
+                        <option value="black_only">Black chords only</option>
+                        <option value="never">Never</option>
+                    </select>
+                    <select class="selector" name="chord_reveal_mode" id="chord-reveal-mode-selector">
+                        <option value="always">Always on</option>
+                        <option value="after_guess">Reveal after guess</option>
+                    </select>
+                </div>
+                <div class="entry-row">
+                    <label for="chord_name_display_mode">Chord name display:</label>
+                    <select class="selector" name="chord_name_display_mode" id="chord-name-display-mode-selector">
+                        <option value="shapes_and_letters">Shapes and Letters</option>
+                        <option value="shapes_only">Shapes only</option>
+                        <option value="letters_only">Letters only</option>
+                    </select>
+                </div>
+                <div class="entry-row">
+                    <label for="persist_reaction_face_setting">Persist Reaction Face:</label>
+                    <input type="checkbox" id="persist_reaction_face_setting" class="entry">
+                </div>
+                <div class="entry-row">
+                    <label for="target_number_setting">Target Number:</label>
+                    <input type="number" id="target_number_setting" class="entry">
+                </div>
+                <div class="button-container">
+                    <button class="button settings-button" id="delete-profile-button" onclick="delete_profile()">Delete Profile</button>
+                    <button class="button settings-button" id="submit-changes-button" onclick="submit_profile_changes()">Save Changes</button>
+                    <button class="button add-button" id="add-user-button" onclick="add_profile()">Add Profile</button>
+                </div>
             </div>
         </div>
         <div class="control-wrapper">
@@ -360,106 +440,9 @@
     </a>
 </div>
 
-<!-- Infobox -->
-<div class="infobox" id="i-infobox">
-    <p>This is an implementation of <a href="http://pom.sagepub.com/content/42/1/86">Eguchi's Chord Identification method</a> (paper access can be found via <a href="https://en.wikipedia.org/wiki/Sci-Hub">Sci-Hub</a>). See also <a href="https://ichionkai.co.jp/english3.html">Ichionkai Music School</a>.</p>
-    <p><a href="https://youtu.be/kNfkm6PQC20">Here is a short video explaining how we use it</a>.</p>
-    <p>This is a method for teaching absolute pitch to children aged 2-6. Children should practice ~5x per day for 2-3 minutes (about 20-25 identifications). Chords are always identified with colors, and progress in the sequence <span onclick="trigger_easter_egg()">red</span> (CEG), yellow (CFA), blue (HDG), black (ACF), green (DGH), orange (EGC), purple (FAC), pink (GHD), brown (GCE).</p>
-    <p>Introduce the chords to the children one at a time, spacing out new chord introductions by at least 2 weeks each time. Do not introduce a new chord until the child can identify all presented chords with 100% accuracy.</p>
-</div>
-
-<!-- Music player / Trainer -->
-<div class="infobox" id="trainer-infobox">
-  <div class="box-title">
-      Music Trainer: Play the chords manually
-  </div>
-  <div class="trainer-container">
-    <div class="flag-wrapper trainer visible"><div class="flag trainer red" onclick="play_chord('red');"></div></div>
-    <div class="flag-wrapper trainer visible"><div class="flag trainer yellow" onclick="play_chord('yellow');"></div></div>
-    <div class="flag-wrapper trainer visible"><div class="flag trainer blue" onclick="play_chord('blue');"></div></div>
-    <div class="flag-wrapper trainer visible"><div class="flag trainer black" onclick="play_chord('black');"></div></div>
-    <div class="flag-wrapper trainer visible"><div class="flag trainer green" onclick="play_chord('green');"></div></div>
-    <div class="flag-wrapper trainer visible"><div class="flag trainer orange" onclick="play_chord('orange');"></div></div>
-    <div class="flag-wrapper trainer visible"><div class="flag trainer purple" onclick="play_chord('purple');"></div></div>
-    <div class="flag-wrapper trainer visible"><div class="flag trainer pink" onclick="play_chord('pink');"></div></div>
-    <div class="flag-wrapper trainer visible"><div class="flag trainer brown" onclick="play_chord('brown');"></div></div>
-    <div class="flag-wrapper trainer visible"><div class="flag trainer gray" onclick="play_chord('gray');"></div></div>
-    <div class="flag-wrapper trainer visible"><div class="flag trainer tan" onclick="play_chord('tan');"></div></div>
-    <div class="flag-wrapper trainer visible"><div class="flag trainer lightgreen" onclick="play_chord('lightgreen');"></div></div>
-    <div class="flag-wrapper trainer visible"><div class="flag trainer lightpurple" onclick="play_chord('lightpurple');"></div></div>
-    <div class="flag-wrapper trainer visible"><div class="flag trainer skyblue" onclick="play_chord('skyblue');"></div></div>
-  </div>
-</div>
-
 <!-- Single Note Quiz (disabled for now) -->
 <div class="infobox" id="single-note-trainer">
     <div id="single-note-selector-container">
-    </div>
-</div>
-
-<!-- Statistics History -->
-<div class="infobox stats-history-container" id="stats-history-container"></div>
-
-<!-- "Add profile" / "Profile settings" dialog -->
-<div class="profile-info-container" id="profile-info-container">
-    <span class="close-button" id="close-add-profile-container-button" onclick="close_profile_adder()">&times;</span>
-    <div class="entry-row">
-        <label for="profile_name">Profile Name:</label>
-        <input type="text" id="profile_name_setting" class="entry">
-    </div>
-    <div class="entry-row">
-        <label for="profile_icon_selector">Icon:</label><br/>
-        <input type="radio" name="profile_icon_selector" value="fa-user" id="npis-user">
-        <label for="npis-user"><i class="fa fa-solid fa-user"></i></label>
-        <input type="radio" name="profile_icon_selector" value="fa-truck" id="npis-truck">
-        <label for="npis-truck"><i class="fa fa-solid fa-truck"></i></label>
-        <input type="radio" name="profile_icon_selector" value="fa-bolt" id="npis-bolt">
-        <label for="npis-bolt"><i class="fa fa-solid fa-bolt"></i></label>
-        <input type="radio" name="profile_icon_selector" value="fa-paw" id="npis-paw">
-        <label for="npis-paw"><i class="fa fa-solid fa-paw"></i></label>
-        <input type="radio" name="profile_icon_selector" value="fa-soccer-ball-o" id="npis-soccer-ball">
-        <label for="npis-soccer-ball"><i class="fa fa-solid fa-soccer-ball-o"></i></label>
-        <input type="radio" name="profile_icon_selector" value="fa-smile-o" id="npis-smile-o">
-        <label for="npis-smile-o"><i class="fa fa-solid fa-smile-o"></i></label>
-        <input type="radio" name="profile_icon_selector" value="fa-umbrella" id="npis-umbrella">
-        <label for="npis-umbrella"><i class="fa fa-solid fa-umbrella"></i></label>
-        <input type="radio" name="profile_icon_selector" value="fa-trophy" id="npis-trophy">
-        <label for="npis-trophy"><i class="fa fa-solid fa-trophy"></i></label>
-        <input type="radio" name="profile_icon_selector" value="fa-taxi" id="npis-taxi">
-        <label for="npis-taxi"><i class="fa fa-solid fa-taxi"></i></label>
-    </div>
-    <div class="entry-row">
-        <label for="show_chord_name_mode">Show chord names:</label><br/>
-        <select class="selector" name="show_chord_name_mode" id="show-chord-name-mode-selector">
-            <option value="always">Always</option>
-            <option value="black_only">Black chords only</option>
-            <option value="never">Never</option>
-        </select>
-        <select class="selector" name="chord_reveal_mode" id="chord-reveal-mode-selector">
-            <option value="always">Always on</option>
-            <option value="after_guess">Reveal after guess</option>
-        </select>
-    </div>
-    <div class="entry-row">
-        <label for="chord_name_display_mode">Chord name display:</label>
-        <select class="selector" name="chord_name_display_mode" id="chord-name-display-mode-selector">
-            <option value="shapes_and_letters">Shapes and Letters</option>
-            <option value="shapes_only">Shapes only</option>
-            <option value="letters_only">Letters only</option>
-        </select>
-    </div>
-    <div class="entry-row">
-        <label for="persist_reaction_face_setting">Persist Reaction Face:</label>
-        <input type="checkbox" id="persist_reaction_face_setting" class="entry">
-    </div>
-    <div class="entry-row">
-        <label for="target_number_setting">Target Number:</label>
-        <input type="number" id="target_number_setting" class="entry">
-    </div>
-    <div class="button-container">
-        <button class="button settings-button" id="delete-profile-button" onclick="delete_profile()">Delete Profile</button>
-        <button class="button settings-button" id="submit-changes-button" onclick="submit_profile_changes()">Save Changes</button>
-        <button class="button add-button" id="add-user-button" onclick="add_profile()">Add Profile</button>
     </div>
 </div>
 <div class="shape-container">

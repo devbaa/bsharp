@@ -70,8 +70,8 @@ test.describe("BSharp app", () => {
 // These tests document known bugs from TODO.md. They are expected to FAIL
 // until the corresponding bug is fixed.
 
-test.describe("BUG: Settings button doesn't work", () => {
-  test("settings modal opens without JS errors", async ({ page }) => {
+test.describe("Profile panel", () => {
+  test("profile panel opens without JS errors", async ({ page }) => {
     await page.goto("/");
 
     // Collect JS errors
@@ -79,31 +79,38 @@ test.describe("BUG: Settings button doesn't work", () => {
     page.on("pageerror", (err) => errors.push(err.message));
 
     await openMenu(page);
-    await page.locator("#profile-settings-trigger").click();
+    await page.locator("#profile-infobox-trigger").click();
 
-    // The modal should become visible and no JS errors should have fired.
-    // Bug: populateProfileSettings() crashes on missing single-note selectors.
     const modal = page.locator("#profile-info-container");
     await expect(modal).toHaveClass(/visible/);
     expect(errors).toHaveLength(0);
   });
 
-  test("settings modal shows Save Changes button", async ({ page }) => {
+  test("profile panel shows Save Changes button", async ({ page }) => {
     await page.goto("/");
     await openMenu(page);
-    await page.locator("#profile-settings-trigger").click();
+    await page.locator("#profile-infobox-trigger").click();
 
     const saveButton = page.locator("#submit-changes-button");
     await expect(saveButton).toBeVisible();
   });
+
+  test("profile switcher shows current profile as active", async ({ page }) => {
+    await page.goto("/");
+    await openMenu(page);
+    await page.locator("#profile-infobox-trigger").click();
+
+    const activeItem = page.locator("#profile-switcher .switcher-item.active");
+    await expect(activeItem).toHaveCount(1);
+  });
 });
 
-test.describe("BUG: Add profile screen defaults not filled in", () => {
+test.describe("Add profile defaults", () => {
   test("add profile form has default values populated", async ({ page }) => {
     await page.goto("/");
     await openMenu(page);
     await page.locator("#profile-infobox-trigger").click();
-    await page.locator("div.pulldown-item").filter({ hasText: "Add Profile" }).click();
+    await page.locator("#profile-switcher .switcher-add").click();
 
     // Target number should have a non-empty default
     const targetInput = page.locator("#target_number_setting");
@@ -120,17 +127,17 @@ test.describe("BUG: Add profile screen defaults not filled in", () => {
   });
 });
 
-test.describe("BUG: Creating a profile doesn't work", () => {
+test.describe("Creating a profile", () => {
   test("can create a new profile without JS errors", async ({ page }) => {
     await page.goto("/");
 
     const errors: string[] = [];
     page.on("pageerror", (err) => errors.push(err.message));
 
-    // Open "Add Profile" dialog
+    // Open profile panel and click "+"
     await openMenu(page);
     await page.locator("#profile-infobox-trigger").click();
-    await page.locator("div.pulldown-item").filter({ hasText: "Add Profile" }).click();
+    await page.locator("#profile-switcher .switcher-add").click();
 
     // Fill in required fields
     await page.locator("#profile_name_setting").fill("Test User");
@@ -153,10 +160,10 @@ test.describe("BUG: Creating a profile doesn't work", () => {
     await page.goto("/");
     page.on("dialog", (dialog) => dialog.dismiss());
 
-    // Open "Add Profile" dialog
+    // Open profile panel and click "+"
     await openMenu(page);
     await page.locator("#profile-infobox-trigger").click();
-    await page.locator("div.pulldown-item").filter({ hasText: "Add Profile" }).click();
+    await page.locator("#profile-switcher .switcher-add").click();
 
     // Fill required fields + set a non-default setting
     await page.locator("#profile_name_setting").fill("Custom User");
@@ -166,15 +173,13 @@ test.describe("BUG: Creating a profile doesn't work", () => {
     await page.locator("#add-user-button").click();
 
     // Verify the profile was created with the non-default setting by
-    // re-opening settings and checking the checkbox is still checked.
-    // The menu may still be visible from the earlier flow, so ensure
-    // it's open before clicking the settings trigger.
+    // re-opening the profile panel and checking the checkbox is still checked.
     const menu = page.locator("#menu-container");
     if (!(await menu.evaluate(el => el.classList.contains("visible")))) {
       await page.locator("#hamburger-link").click();
       await expect(menu).toHaveClass(/visible/);
     }
-    await page.locator("#profile-settings-trigger").click();
+    await page.locator("#profile-infobox-trigger").click();
     const checkbox = page.locator("#persist_reaction_face_setting");
     await expect(checkbox).toBeChecked();
   });

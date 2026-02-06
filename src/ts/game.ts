@@ -215,17 +215,7 @@ export function changeSelector(to?: string): void {
     }
 }
 
-export function toggleTrainerVisibility(): void {
-    const trainerInfobox = document.getElementById('trainer-infobox');
-    if (!trainerInfobox) return;
-
-    // Import toggle_visibility behavior
-    if (trainerInfobox.classList.contains('visible')) {
-        trainerInfobox.classList.remove('visible');
-    } else {
-        trainerInfobox.classList.add('visible');
-    }
-
+export function onTrainerOpen(): void {
     if (!_TRAINER_PRELOADED) {
         for (const color of Object.keys(CHORDS_TONE)) {
             preloadAudio(color, onAudioEnded);

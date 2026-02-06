@@ -24,6 +24,62 @@ div.cim-container {
     justify-content: space-around;
 }
 
+/* Active trigger accent color */
+body.colorscheme-dark .infobox-container.active .infobox-trigger i.fa {
+    color: #abd1f2;
+}
+
+body.colorscheme-light .infobox-container.active .infobox-trigger i.fa {
+    color: #0077be;
+}
+
+/* Panel area: contains all full-screen tab panels */
+#panel-area {
+    display: none;
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+}
+
+div.cim-container.panel-open #panel-area {
+    display: flex;
+}
+
+/* Panel elements: fill parent, hidden by default */
+#panel-area > .panel {
+    display: none;
+    position: static;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    transform: none;
+    top: unset;
+    left: unset;
+    max-height: unset;
+    max-width: unset;
+    z-index: unset;
+    opacity: 1;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#panel-area > .panel.visible {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Hide game content when a panel is open */
+div.cim-container.panel-open > .control-wrapper,
+div.cim-container.panel-open > .flag-container,
+div.cim-container.panel-open > .stats,
+div.cim-container.panel-open > .selectors,
+div.cim-container.panel-open > .mode-toggle-container {
+    display: none;
+}
+
 div.menu-container {
     display: flex;
     flex-direction: row;
@@ -453,8 +509,8 @@ body.colorscheme-light div.flag {
     white-space: nowrap;
 }
 
-/* Infobox styles */
-.infobox {
+/* Infobox styles (for non-panel infoboxes like the pulldown) */
+.infobox:not(.panel) {
   position: absolute;
   top: 5%;
   left: 50%;
@@ -479,14 +535,7 @@ body.colorscheme-light div.flag {
 }
 
 div.infobox#trainer-infobox {
-    height: 90vh; // Fallback
-    height: 90dvh;
-    display: none;
     flex-direction: column;
-}
-
-div.infobox.visible#trainer-infobox {
-    display: flex;
 }
 
 div.infobox#trainer-infobox > div.box-title {
@@ -508,55 +557,62 @@ div.trainer-container {
 }
 
 
-div.infobox.pulldown {
-  width: auto;
-  padding-left: 0;
-  padding-right: 0;
-  transform: unset;
-  left: unset;
-  right: 0%;
+/* Profile switcher bar */
+#profile-switcher {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid #555;
+    flex-wrap: wrap;
 }
 
-body.colorscheme-light span.pulldown-target {
-    color: $fg-color;
+#profile-switcher .switcher-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    background: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0;
 }
 
-body.colorscheme-dark span.pulldown-target {
+body.colorscheme-dark #profile-switcher .switcher-item {
     color: $fg-color-dark;
 }
 
-div.pulldown-item {
-    display: flex;
-    flex-wrap: nowrap;
-    flex-direction: row;
-    align-items: center;
-    padding-left: 5px;
-    padding-right: 10px;
+body.colorscheme-light #profile-switcher .switcher-item {
+    color: $fg-color;
 }
 
-body.colorscheme-dark div.pulldown-item:hover {
-    background-color: color.scale($bg-color-dark, $lightness: 12.5%);
+body.colorscheme-dark #profile-switcher .switcher-item.active {
+    border-color: #abd1f2;
+    background-color: color.scale($bg-color-dark, $lightness: 15%);
 }
 
-body.colorscheme-light div.pulldown-item:hover {
-    background-color: color.scale($bg-color, $lightness: -12.5%);
+body.colorscheme-light #profile-switcher .switcher-item.active {
+    border-color: #0077be;
+    background-color: color.scale($bg-color, $lightness: -10%);
 }
 
-div.pulldown-item > i.profile-settings-icon,
-div.pulldown-item > i.profile-icon {
-    margin-right: 0.75rem;
+body.colorscheme-dark #profile-switcher .switcher-item:hover:not(.active) {
+    background-color: color.scale($bg-color-dark, $lightness: 10%);
 }
 
-div.pulldown-item > span.profile-name {
-    white-space: nowrap;
+body.colorscheme-light #profile-switcher .switcher-item:hover:not(.active) {
+    background-color: color.scale($bg-color, $lightness: -5%);
 }
 
-div.trigger-container > a {
-    text-decoration: none;
-}
-
-div.trigger-container > a:hover {
-    text-decoration: none;
+#profile-switcher .switcher-add {
+    border-style: dashed;
+    border-color: #888;
+    font-size: 1rem;
 }
 
 body.colorscheme-light .infobox {
@@ -569,7 +625,7 @@ body.colorscheme-dark .infobox {
   background-color: $bg-color-dark;
 }
 
-.infobox.visible {
+.infobox:not(.panel).visible {
     display: block;
     opacity: 1;
 }
@@ -578,20 +634,7 @@ body.colorscheme-dark .infobox {
 // Profile adder
 
 .profile-info-container {
-    display: none;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 50vw; // Fallback
-    width: 50dvw;
     padding: 10px;
-    border: 1px solid #cccccc;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-    opacity: 0;
-    transition: visibility 0s, opacity 0.3s;
-    z-index: 100;
 }
 
 body.colorscheme-dark .profile-info-container {
@@ -602,17 +645,6 @@ body.colorscheme-light .profile-info-container {
     background: $bg-color;
 }
 
-.profile-info-container.visible {
-    display: block;
-    opacity: 1;
-}
-
-.profile-info-container .close-button {
-    position: absolute;
-    top: 5%;
-    right: 5%;
-    font-size: 2em;
-}
 
 .profile-info-container button {
     display: none;
@@ -644,19 +676,8 @@ a.download-button.visible {
 
 // Stats container
 div.stats-history-container {
-    width: fit-content;
-    max-height: 40vh; // Fallback
-    max-height: 40dvh;
-    max-width: 95vw; // Fallback
-    max-width: 95dvw;
-    overflow-y: auto;
     flex-flow: column nowrap;
     align-content: flex-start;
-    overflow-x: none;
-}
-
-div.stats-history-container.visible {
-    display: inline-flex;
 }
 
 div.stats-history-container > div.stats-history-item {
@@ -705,14 +726,6 @@ div.stats-history-item > div.session-stats {
     font-weight: bold;
     min-width: 20vw;
 }
-
-.stats-container .close-button {
-    position: absolute;
-    top: 0;
-    right: 0.5rem;
-    font-size: 2em;
-}
-
 
 /* Flags */
 $red: red;
