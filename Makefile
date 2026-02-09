@@ -1,4 +1,4 @@
-.PHONY: build check clean test test-unit test-ui test-screenshot test-screenshot-update android-deploy icons generate-audio move-downloaded-chords move-downloaded-notes convert-audio-to-mp3
+.PHONY: build check clean test test-unit test-ui test-screenshot test-screenshot-update android-deploy android-release icons generate-audio move-downloaded-chords move-downloaded-notes convert-audio-to-mp3 play-store-screenshots
 
 build: dist/bsharp.js dist/style.css dist/index.html dist/static
 
@@ -36,8 +36,17 @@ android-deploy: build
 	mkdir -p android/app/src/main/assets
 	cp -r dist/* android/app/src/main/assets/
 
+android-release: android-deploy
+	cd android && JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home" ./gradlew bundleRelease
+	@echo "AAB: android/app/build/outputs/bundle/release/app-release.aab"
+
 icons:
 	bash scripts/generate_icons.sh
+
+play-store-screenshots: build
+	npx http-server dist -p 8080 -c-1 --silent & echo $$! > .http-server.pid
+	sleep 1
+	npx tsx scripts/play-store-screenshots.ts; kill $$(cat .http-server.pid); rm -f .http-server.pid
 
 clean:
 	rm -rf dist/*
