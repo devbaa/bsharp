@@ -48,6 +48,7 @@ export interface Profile {
     single_note_mode: string;
     single_note_correctness_mode: string;
     persist_reaction_face: boolean;
+    enable_onboarding_hints: boolean;
     color_scheme: string;
     stats: SessionStats;
     current_chord: string;

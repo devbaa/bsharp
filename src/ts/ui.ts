@@ -5,7 +5,7 @@ import {
     saveState, newProfile, GUEST_USER_ID, DEFAULT_TARGET_NUMBER,
     DEFAULT_SHOW_CHORD_MODE, DEFAULT_REVEAL_CHORD_MODE, DEFAULT_CHORD_DISPLAY_MODE,
     DEFAULT_SINGLE_NOTE_MODE, DEFAULT_SINGLE_NOTE_CORRECTNESS_MODE,
-    DEFAULT_PERSIST_REACTION_FACE, DEFAULT_COLOR_SCHEME,
+    DEFAULT_PERSIST_REACTION_FACE, DEFAULT_ENABLE_ONBOARDING_HINTS, DEFAULT_COLOR_SCHEME,
 } from './state';
 import {
     calculatePercentage, calculateNeutralLevel, getCatEmoji, normalizeStatsObject
@@ -380,7 +380,7 @@ function getProfileSettings(): {
     target_number: string; show_chord_mode: string; reveal_chord_mode: string;
     chord_display_mode: string; single_note_mode: string;
     single_note_correctness_mode: string; persist_reaction_face: boolean;
-    color_scheme: string;
+    enable_onboarding_hints: boolean; color_scheme: string;
 } {
     const profileContainer = document.getElementById('profile-info-container')!;
     const profileNameElem = document.getElementById('profile_name_setting') as HTMLInputElement;
@@ -403,6 +403,7 @@ function getProfileSettings(): {
     const singleNoteCorrectnessMode = singleNoteCorrectnessModeElem ? singleNoteCorrectnessModeElem.value : DEFAULT_SINGLE_NOTE_CORRECTNESS_MODE;
     const targetNumber = (document.getElementById('target_number_setting') as HTMLInputElement).value;
     const persistReactionFace = (document.getElementById('persist_reaction_face_setting') as HTMLInputElement).checked;
+    const enableOnboardingHints = (document.getElementById('enable_onboarding_hints_setting') as HTMLInputElement).checked;
     const colorScheme = (document.getElementById('color-scheme-selector') as HTMLSelectElement).value;
 
     return {
@@ -416,6 +417,7 @@ function getProfileSettings(): {
         single_note_mode: singleNoteMode,
         single_note_correctness_mode: singleNoteCorrectnessMode,
         persist_reaction_face: persistReactionFace,
+        enable_onboarding_hints: enableOnboardingHints,
         color_scheme: colorScheme,
     };
 }
@@ -482,6 +484,7 @@ function populateProfileSettings(): void {
     const singleNoteCorrectnessModeElem = document.getElementById('single-note-trainer-correctness-mode-selector') as HTMLSelectElement | null;
     if (singleNoteCorrectnessModeElem) singleNoteCorrectnessModeElem.value = profile.single_note_correctness_mode;
     (document.getElementById('persist_reaction_face_setting') as HTMLInputElement).checked = profile.persist_reaction_face;
+    (document.getElementById('enable_onboarding_hints_setting') as HTMLInputElement).checked = profile.enable_onboarding_hints;
     (document.getElementById('color-scheme-selector') as HTMLSelectElement).value = profile.color_scheme;
 
     profileDialog.dataset.id = String(profile.id);
@@ -534,6 +537,7 @@ export function openProfileAdder(): void {
     const chordDisplayMode = document.getElementById('chord-name-display-mode-selector') as HTMLSelectElement | null;
     if (chordDisplayMode) chordDisplayMode.value = DEFAULT_CHORD_DISPLAY_MODE;
     (document.getElementById('persist_reaction_face_setting') as HTMLInputElement).checked = DEFAULT_PERSIST_REACTION_FACE;
+    (document.getElementById('enable_onboarding_hints_setting') as HTMLInputElement).checked = DEFAULT_ENABLE_ONBOARDING_HINTS;
     (document.getElementById('color-scheme-selector') as HTMLSelectElement).value = DEFAULT_COLOR_SCHEME;
 
     // Pre-select the first icon
@@ -569,6 +573,7 @@ export function addProfile(): void {
             newProfileValues.single_note_mode,
             newProfileValues.single_note_correctness_mode,
             newProfileValues.persist_reaction_face,
+            newProfileValues.enable_onboarding_hints,
             newProfileValues.color_scheme,
         );
         STATE.profiles[profile.id] = profile;
@@ -604,6 +609,7 @@ export function submitProfileChanges(): void {
     currentProfile.single_note_mode = profileValues.single_note_mode;
     currentProfile.single_note_correctness_mode = profileValues.single_note_correctness_mode;
     currentProfile.persist_reaction_face = profileValues.persist_reaction_face;
+    currentProfile.enable_onboarding_hints = profileValues.enable_onboarding_hints;
     currentProfile.color_scheme = profileValues.color_scheme;
 
     saveState();

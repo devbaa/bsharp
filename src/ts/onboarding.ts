@@ -21,6 +21,7 @@ const STEP_CONFIG: Record<string, { text: string; arrow: boolean }> = {
 };
 
 function showOverlay(step: string, textOverride?: string): void {
+    if (!getCurrentProfile().enable_onboarding_hints) return;
     const overlay = document.getElementById('onboarding-overlay');
     if (!overlay) return;
     const config = STEP_CONFIG[step];
@@ -57,6 +58,9 @@ export function initOnboarding(): void {
 
 export function resetOnboarding(): void {
     _isFirstIdentification = checkIsFirstSession();
+    if (!getCurrentProfile().enable_onboarding_hints) {
+        hideOverlay();
+    }
 }
 
 export function showOnboardingPlayPrompt(): void {

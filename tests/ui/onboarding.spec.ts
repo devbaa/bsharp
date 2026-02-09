@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { createProfile } from "./helpers";
+import { createProfile, openProfilePanel } from "./helpers";
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => localStorage.clear());
@@ -190,4 +190,21 @@ test("overlay reappears when switching to a new profile", async ({ page }) => {
   await expect(overlay.locator(".onboarding-text")).toHaveText(
     "Guess the color",
   );
+});
+
+test("no overlays when onboarding hints disabled in profile settings", async ({
+  page,
+}) => {
+  const overlay = page.locator("#onboarding-overlay");
+
+  // Disable onboarding hints for the Guest profile
+  await openProfilePanel(page);
+  await page.locator("#enable_onboarding_hints_setting").uncheck();
+  await page.locator("#submit-changes-button").click();
+
+  // Reset stats to trigger initOnboarding flow
+  await page.locator("#reset-button").click();
+
+  // Play overlay should NOT appear
+  await expect(overlay).not.toBeVisible();
 });
