@@ -59,7 +59,7 @@ test("correct guess shows success overlay on first identification", async ({
   await expect(overlay.locator(".onboarding-text")).toHaveText(
     "Great job! Click the arrow to continue",
   );
-  await expect(overlay).toHaveAttribute("data-step", "success");
+  await expect(overlay).toHaveAttribute("data-step", "goNext");
 });
 
 test("wrong guess shows retry overlay on first identification", async ({
@@ -81,7 +81,24 @@ test("wrong guess shows retry overlay on first identification", async ({
   await expect(overlay.locator(".onboarding-text")).toHaveText(
     "Click the arrow to try again",
   );
-  await expect(overlay).toHaveAttribute("data-step", "retry");
+  await expect(overlay).toHaveAttribute("data-step", "goNext");
+});
+
+test("play click does not dismiss success/retry overlay", async ({ page }) => {
+  const overlay = page.locator("#onboarding-overlay");
+
+  await page.locator("#play-button").click();
+  await expect(overlay).toBeVisible({ timeout: 5000 });
+
+  // Click any flag to get a result overlay (success or retry)
+  await page.locator("#red-flag .flag").click();
+  await expect(overlay).toBeVisible();
+  await expect(overlay).toHaveAttribute("data-step", "goNext");
+
+  // Click play again — overlay should persist
+  await page.locator("#play-button").click();
+  await expect(overlay).toBeVisible();
+  await expect(overlay).toHaveAttribute("data-step", "goNext");
 });
 
 test("result overlay dismissed when clicking next", async ({ page }) => {

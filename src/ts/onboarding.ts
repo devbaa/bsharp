@@ -17,11 +17,10 @@ function checkIsFirstSession(): boolean {
 const STEP_CONFIG: Record<string, { text: string; arrow: boolean }> = {
     play: { text: 'Click the play button to hear the sound', arrow: true },
     guess: { text: 'Guess the color', arrow: false },
-    success: { text: 'Great job! Click the arrow to continue', arrow: false },
-    retry: { text: 'Click the arrow to try again', arrow: false },
+    goNext: { text: '', arrow: false },
 };
 
-function showOverlay(step: string): void {
+function showOverlay(step: string, textOverride?: string): void {
     const overlay = document.getElementById('onboarding-overlay');
     if (!overlay) return;
     const config = STEP_CONFIG[step];
@@ -39,7 +38,7 @@ function showOverlay(step: string): void {
 
     const text = document.createElement('span');
     text.className = 'onboarding-text';
-    text.textContent = config.text;
+    text.textContent = textOverride ?? config.text;
     overlay.appendChild(text);
 
     overlay.classList.add('visible');
@@ -60,28 +59,30 @@ export function resetOnboarding(): void {
     _isFirstIdentification = checkIsFirstSession();
 }
 
-export function showPlayOverlay(): void {
+export function showOnboardingPlayPrompt(): void {
     showOverlay('play');
 }
 
-export function onPlay(): void {
-    hideOverlay();
+export function dismissOnboardingStep(step: string): void {
+    const overlay = document.getElementById('onboarding-overlay');
+    if (overlay?.dataset.step === step) {
+        hideOverlay();
+    }
 }
 
-export function onAudioEnded(): void {
+export function showOnboardingGuessPrompt(): void {
     if (_isFirstIdentification) {
         showOverlay('guess');
     }
 }
 
-export function onFlagSelected(isCorrect: boolean): void {
+export function showOnboardingGoNextPrompt(isCorrect: boolean): void {
     hideOverlay();
     if (_isFirstIdentification) {
-        showOverlay(isCorrect ? 'success' : 'retry');
+        const text = isCorrect
+            ? 'Great job! Click the arrow to continue'
+            : 'Click the arrow to try again';
+        showOverlay('goNext', text);
         _isFirstIdentification = false;
     }
-}
-
-export function onNext(): void {
-    hideOverlay();
 }

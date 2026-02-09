@@ -9,7 +9,7 @@ import {
 import { getCurrentCoefficients, updateStartTimeIfNeeded, updateStats, normalizeStatsObject } from './stats';
 import { getAudioFiles, audioFileElem, playChordFiles, preloadAudio } from './audio';
 import { populateFlags, updateStatsDisplay, resetCatEmoji, setCatEmoji, setChordDisplayMode, populateProfileUiElements } from './ui';
-import { onPlay as onboardingOnPlay, onAudioEnded as onboardingOnAudioEnded, onFlagSelected as onboardingOnFlagSelected, onNext as onboardingOnNext, showPlayOverlay } from './onboarding';
+import { dismissOnboardingStep, showOnboardingGuessPrompt, showOnboardingGoNextPrompt, showOnboardingPlayPrompt } from './onboarding';
 
 let _COLORS: string[] | null = null;
 let _CHORDS_ON = false;
@@ -51,7 +51,7 @@ function setPlayedAfter(delay: number): void {
 
 function onAudioEnded(): void {
     _AUDIO_PLAYED = true;
-    onboardingOnAudioEnded();
+    showOnboardingGuessPrompt();
 }
 
 export function stopCurrentAudio(): void {
@@ -108,7 +108,7 @@ export function playAudio(): void {
     if (playButton && playButton.classList.contains('deactivated')) return;
     if (!_CURRENT_AUDIO) return;
 
-    onboardingOnPlay();
+    dismissOnboardingStep('play');
     const [chord, duration] = _CURRENT_AUDIO;
     stopCurrentAudio();
     const safeDuration = isNaN(duration) ? 0.8 : duration;
@@ -139,7 +139,7 @@ export function selectFlag(elem: HTMLElement): void {
         setCatEmoji(5);
     }
     _SELECTED_ELEM = elem;
-    onboardingOnFlagSelected(isCorrect);
+    showOnboardingGoNextPrompt(isCorrect);
 
     if (getCurrentProfile().persist_reaction_face &&
         getCurrentProfile().stats.identifications < getCurrentTargetNumber()) {
@@ -164,7 +164,7 @@ export function nextAudio(): void {
     const nextButton = document.getElementById('next-chord');
     if (!nextButton || nextButton.classList.contains('deactivated')) return;
 
-    onboardingOnNext();
+    dismissOnboardingStep('goNext');
 
     if (_CHORDS_ON && getCurrentProfile().reveal_chord_mode === 'after_guess') {
         document.getElementById('flag-holder')!.classList.remove('chord-notes');
@@ -190,7 +190,7 @@ export function resetStats(done = true): void {
     saveState();
     updateStatsDisplay();
     populateAudio();
-    showPlayOverlay();
+    showOnboardingPlayPrompt();
 }
 
 function retrieveSavedStats(): void {
@@ -229,7 +229,7 @@ export function changeSelector(to?: string): void {
 
     populateFlags(getSelectedColors, chordsOn);
     populateAudio();
-    showPlayOverlay();
+    showOnboardingPlayPrompt();
     saveState();
 
     for (const color of getSelectedColors()) {
