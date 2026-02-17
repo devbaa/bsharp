@@ -5,3 +5,4 @@ tests/screenshot/*-snapshots/
 .DS_Store
 .idea/
 icon-drafts/
+tmp/
