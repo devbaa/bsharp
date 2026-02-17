@@ -30,7 +30,7 @@ test-screenshot: build
 	npx playwright test --config playwright.screenshot.config.ts
 
 test-screenshot-update: build
-	npx playwright test --config playwright.screenshot.config.ts --update-snapshots
+	npx playwright test --config playwright.screenshot.config.ts --update-snapshots=all
 
 android-deploy: build
 	mkdir -p android/app/src/main/assets

@@ -17,6 +17,11 @@ SimSun,"宋体",
 Heiti,"黑体",
 sans-serif;
 
+// Remove Android WebView tap highlight on all elements
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
   font-family: $font-family;
   font-size: 1.8em;

@@ -61,7 +61,7 @@ function updateStatsContainer(containerElem: HTMLElement, correct: number, ident
 
     const percentage = calculatePercentage(correct, identifications);
     if (percElem) {
-        percElem.innerHTML = identifications > 0 ? '(' + percentage.toFixed(1) + '%)' : '';
+        percElem.innerHTML = identifications > 0 ? '(' + percentage.toFixed(0) + '%)' : '';
     }
 }
 
@@ -714,7 +714,7 @@ function populateStatsHistoryModal(): void {
 
         const stats = document.createElement('div');
         stats.classList.add('session-stats');
-        stats.innerText = correct + ' / ' + identifications + ' (' + percentage.toFixed(1) + '%) ' + emoji;
+        stats.innerText = correct + ' / ' + identifications + ' (' + percentage.toFixed(0) + '%) ' + emoji;
         div.appendChild(stats);
 
         statsContainer.appendChild(div);

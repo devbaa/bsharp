@@ -140,3 +140,27 @@ test("tablet layout at low level", async ({ page }) => {
 
   await expect(page).toHaveScreenshot("tablet-low-level.png");
 });
+
+test("stats bar after correct guess", async ({ page }) => {
+  await page.locator("#play-button").click();
+  await page.waitForTimeout(1000);
+
+  await page.locator("#red-flag .flag").click();
+  await expect(page.locator("#red-flag .flag")).toHaveClass(/flag-correct/);
+
+  await expect(page.locator("#stats-container")).toHaveScreenshot(
+    "stats-correct.png",
+  );
+});
+
+test("stats bar after incorrect guess", async ({ page }) => {
+  await page.locator("#play-button").click();
+  await page.waitForTimeout(1000);
+
+  await page.locator("#yellow-flag .flag").click();
+  await expect(page.locator("#yellow-flag .flag")).toHaveClass(/flag-incorrect/);
+
+  await expect(page.locator("#stats-container")).toHaveScreenshot(
+    "stats-incorrect.png",
+  );
+});

@@ -345,21 +345,49 @@ div.stats {
     flex-wrap: nowrap;
     justify-content: center;
     align-items: center;
+    gap: 0.5rem;
     margin-top: 1.5rem;
     flex-grow: 0;
+    // Cap width so flex:1 on stats-wrapper doesn't spread to screen edges
+    max-width: 20rem;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-div.stats > div {
-    margin-right: 0.5em;
-    margin-left: 0.5em;
+// Give the cat emoji and reset button equal width so the score
+// is visually centered between them.
+div.emoji-container,
+a#reset-button {
+    display: flex;
+    justify-content: center;
+    width: 3rem;
+    flex-shrink: 0;
+
+    @media only screen and (min-width: 769px) {
+        width: 4rem;
+    }
 }
 
 div.emoji-container {
     font-size: 3rem;
+    // Compensate for emoji glyph asymmetry; removed when percentage is visible.
+    padding-right: 0.5rem;
+
+    @media only screen and (min-width: 769px) {
+        font-size: 4rem;
+    }
+}
+
+div.stats:has(.stats-percent:not(:empty)) div.emoji-container {
+    padding-right: 0;
 }
 
 div.stats i.fa {
-    font-size: 2rem;
+    font-size: 3rem;
+
+    @media only screen and (min-width: 769px) {
+        font-size: 4rem;
+    }
 }
 
 div.selectors {
@@ -390,12 +418,10 @@ body.colorscheme-dark div.stats.done span#stats-total {
 
 div.stats-wrapper {
     display: flex;
+    flex: 1;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-left: 0px !important;
-    margin-right: 0px !important;
-    padding: 0px;
 }
 
 div.stats-display {
@@ -426,7 +452,8 @@ div.stats-display#sn-stats-display {
 }
 
 div.stats-display span.stats-percent {
-    font-size: 0.5em;
+    font-size: 1em;
+    margin-left: 0.3em;
 }
 
 div.flag-wrapper {

@@ -3,7 +3,6 @@
 ## Bugs
 
 ## UI
-- Screenshot TDD (use flags.spec.ts to test): The "retry" icon does not properly mirror the cat icon, or the score is perhaps not properly centered.
 - Onboarding tip to encourage "pin screen" feature to prevent children leaving the app (though this may differ by device)
 - Home logo is sized differently than other logos (screenshot test needed)
 
