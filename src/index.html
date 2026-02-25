@@ -34,6 +34,10 @@
 
             div.profile-info-container .entry-row {
                 margin-bottom: 15px;
+                display: flex;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 0.5rem;
             }
 
             div.profile-info-container .button-container {
@@ -138,7 +142,7 @@
                     <input type="text" id="profile_name_setting" class="entry">
                 </div>
                 <div class="entry-row">
-                    <label for="profile_icon_selector">Icon:</label><br/>
+                    <label for="profile_icon_selector">Icon:</label>
                     <input type="radio" name="profile_icon_selector" value="fa-user" id="npis-user">
                     <label for="npis-user"><i class="fa fa-solid fa-user"></i></label>
                     <input type="radio" name="profile_icon_selector" value="fa-truck" id="npis-truck">
@@ -159,12 +163,15 @@
                     <label for="npis-taxi"><i class="fa fa-solid fa-taxi"></i></label>
                 </div>
                 <div class="entry-row">
-                    <label for="show_chord_name_mode">Show chord names:</label><br/>
+                    <label for="show_chord_name_mode">Show chord names:</label>
                     <select class="selector" name="show_chord_name_mode" id="show-chord-name-mode-selector">
                         <option value="always">Always</option>
                         <option value="black_only">Black chords only</option>
                         <option value="never">Never</option>
                     </select>
+                </div>
+                <div class="entry-row">
+                    <label for="chord_reveal_mode">Reveal mode:</label>
                     <select class="selector" name="chord_reveal_mode" id="chord-reveal-mode-selector">
                         <option value="always">Always on</option>
                         <option value="after_guess">Reveal after guess</option>
@@ -204,6 +211,15 @@
                         <option value="adaptive">Adaptive</option>
                     </select>
                 </div>
+                <div class="entry-row">
+                    <label>Pin screen:</label>
+                    <button class="button settings-button" type="button" onclick="show_screen_pinning_info()">
+                        <i class="fa fa-thumb-tack"></i> Info
+                    </button>
+                </div>
+                <!-- Buttons are hidden by default (.profile-info-container button { display: none }).
+                     Use "settings-button" for profile-edit buttons or "add-button" for profile-add buttons;
+                     ui.ts adds .visible to the appropriate class when the panel opens. -->
                 <div class="button-container">
                     <button class="button settings-button" id="delete-profile-button" onclick="delete_profile()">Delete Profile</button>
                     <button class="button settings-button" id="submit-changes-button" onclick="submit_profile_changes()">Save Changes</button>
@@ -501,7 +517,24 @@
         </defs>
     </svg>
 </div>
+        <div class="modal-overlay" id="screen-pinning-modal">
+        <div class="modal-content">
+            <p><strong>Screen Pinning</strong> locks the app on screen so children can't navigate away.</p>
+            <p><strong>Enable it:</strong></p>
+            <ol>
+                <li>Open <strong>Settings &gt; Security &gt; More security settings &gt; App Pinning</strong> (on Samsung: Security &gt; Other security settings &gt; Pin Windows)</li>
+                <li>Toggle it on. Enable "Ask for unlock to unpin" for extra security</li>
+            </ol>
+            <p><strong>Pin the app:</strong></p>
+            <ol>
+                <li>Open BSharp, then tap the Recent Apps button (or swipe up and hold)</li>
+                <li>Tap the app icon at the top of the preview, then tap <strong>Pin</strong></li>
+            </ol>
+            <p><strong>Unpin:</strong> Swipe up and hold from the bottom (gesture nav) or hold Back + Overview together (button nav).</p>
+            <button class="button" type="button" onclick="close_screen_pinning_modal()">OK</button>
+        </div>
     </div>
+</div>
     <script src="bsharp.js"></script>
     </body>
 </html>
