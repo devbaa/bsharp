@@ -2,7 +2,7 @@ import { SessionStats, Tally } from './types';
 import { CHORDS_TONE } from './data';
 import { getCurrentTimestamp, sum } from './utils';
 import {
-    STATE, getCurrentProfile, getCurrentTargetNumber,
+    STATE, getCurrentProfile,
     getCurrentSessionHistory, saveState, newTally
 } from './state';
 
@@ -71,17 +71,11 @@ export function updateNoteStats(color: string, correctNote: string, chosenNote: 
     saveState();
 }
 
-export function calculatePercentage(correct?: number, identifications?: number): number {
-    if (correct === undefined && identifications === undefined) {
-        const stats = getCurrentProfile().stats;
-        correct = stats.correct;
-        identifications = stats.identifications;
+export function calculatePercentage(correct: number, identifications: number): number {
+    if (identifications === 0) {
+        return 0;
     }
-
-    if (identifications === 0 || identifications === undefined) {
-        return 75;
-    }
-    return 100 * (correct! / identifications);
+    return 100 * (correct / identifications);
 }
 
 export function calculateNeutralLevel(percentage: number): number {
@@ -101,26 +95,57 @@ export function getCatEmoji(level: number): string {
     return emojiLevels[level];
 }
 
-const WEEK_SECONDS = 7 * 24 * 3600;
+const RECENT_IDENTIFICATIONS_LIMIT = 140;
+
+function countMatrixIdentifications(cm: Record<string, Record<string, number>>): number {
+    let total = 0;
+    for (const row of Object.values(cm)) {
+        for (const count of Object.values(row)) {
+            total += count;
+        }
+    }
+    return total;
+}
+
+function scaleMatrix(
+    cm: Record<string, Record<string, number>>,
+    factor: number
+): Record<string, Record<string, number>> {
+    const result: Record<string, Record<string, number>> = {};
+    for (const [ok, row] of Object.entries(cm)) {
+        result[ok] = {};
+        for (const [ik, count] of Object.entries(row)) {
+            result[ok][ik] = count * factor;
+        }
+    }
+    return result;
+}
 
 export function getCurrentCoefficients(): number[] {
-    let currentTime = getCurrentTimestamp();
-    const unfilteredSessionHistory = getCurrentSessionHistory();
+    const sessionHistory = getCurrentSessionHistory();
+    const numChords = Object.keys(CHORDS_TONE).indexOf(STATE.current_chord) + 1;
 
-    if (unfilteredSessionHistory.length > 1) {
-        currentTime = Math.max(
-            ...unfilteredSessionHistory.map(
-                (x) => (x.identifications >= Math.min(getCurrentTargetNumber(), 25)) ? x.start_time : 0
-            )
-        );
+    // Collect confusion matrices from most recent sessions, capping at RECENT_IDENTIFICATIONS_LIMIT
+    const matrices: Record<string, Record<string, number>>[] = [];
+    let remaining = RECENT_IDENTIFICATIONS_LIMIT;
+
+    for (let i = sessionHistory.length - 1; i >= 0 && remaining > 0; i--) {
+        const session = sessionHistory[i];
+        const sessionCount = countMatrixIdentifications(session.confusion_matrix);
+        if (sessionCount === 0) continue;
+
+        if (sessionCount <= remaining) {
+            matrices.push(session.confusion_matrix);
+            remaining -= sessionCount;
+        } else {
+            // Scale down this session to fit remaining budget
+            const scale = remaining / sessionCount;
+            matrices.push(scaleMatrix(session.confusion_matrix, scale));
+            remaining = 0;
+        }
     }
 
-    const recentConfusionMatrices = unfilteredSessionHistory
-        .filter((x) => (currentTime - x.start_time) < WEEK_SECONDS)
-        .map((x) => x.confusion_matrix);
-
-    const numChords = Object.keys(CHORDS_TONE).indexOf(STATE.current_chord) + 1;
-    const matrix = mergeMatrices(recentConfusionMatrices, numChords);
+    const matrix = mergeMatrices(matrices, numChords);
     return calculateCoefficients(matrix);
 }
 
@@ -162,8 +187,7 @@ export function calculateCoefficients(
     const defaultValue = 1 / numChords;
     let coefficients = new Array(numChords).fill(0);
     const numChances = new Array(numChords).fill(0);
-    const minValues = new Array(numChords).fill(1 / (10 + numChords));
-    minValues[numChords - 1] = 1 / numChords;
+    const minValues = new Array(numChords).fill(1 / (1.2 * numChords));
 
     for (const [correctIndex, correctChord] of chords.entries()) {
         for (const [chosenIndex, chosenChord] of chords.entries()) {

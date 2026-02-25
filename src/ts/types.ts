@@ -50,6 +50,7 @@ export interface Profile {
     persist_reaction_face: boolean;
     enable_onboarding_hints: boolean;
     color_scheme: string;
+    chord_selection_mode: string;
     stats: SessionStats;
     current_chord: string;
     current_instrument: string;

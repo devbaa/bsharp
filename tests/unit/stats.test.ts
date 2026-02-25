@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { calculatePercentage, calculateNeutralLevel, mergeMatrices, calculateCoefficients } from '../../src/ts/stats';
 
 describe('calculatePercentage', () => {
-    it('returns 75 as default when no identifications', () => {
-        expect(calculatePercentage(0, 0)).toBe(75);
+    it('returns 0 when no identifications', () => {
+        expect(calculatePercentage(0, 0)).toBe(0);
     });
 
     it('computes correct percentage', () => {
@@ -62,59 +62,111 @@ describe('mergeMatrices', () => {
     });
 });
 
+// Helper: build a zero confusion matrix for a list of chord names
+function zeroMatrix(chords: string[]): Record<string, Record<string, number>> {
+    const m: Record<string, Record<string, number>> = {};
+    for (const c of chords) {
+        m[c] = {};
+        for (const d of chords) m[c][d] = 0;
+    }
+    return m;
+}
+
 describe('calculateCoefficients', () => {
-    it('returns uniform weights when all chords are below threshold', () => {
-        const matrix: Record<string, Record<string, number>> = {
-            red: { red: 0, yellow: 0 },
-            yellow: { red: 0, yellow: 0 },
-        };
-        const coeffs = calculateCoefficients(matrix);
-        expect(coeffs[0]).toBeCloseTo(0.5);
-        expect(coeffs[1]).toBeCloseTo(0.5);
-    });
+    // Perfect player at level 5: gets all 25 identifications correct for each chord.
+    // All chords are equally easy → uniform 20% each.
+    it('perfect player at level 5 → uniform 20% each', () => {
+        const chords = ['red', 'yellow', 'blue', 'black', 'green'];
+        const m = zeroMatrix(chords);
+        for (const c of chords) m[c][c] = 25;
 
-    it('gives higher weight to frequently confused chords', () => {
-        const matrix: Record<string, Record<string, number>> = {
-            red: { red: 3, yellow: 7, blue: 0 },
-            yellow: { red: 0, yellow: 10, blue: 0 },
-            blue: { red: 0, yellow: 0, blue: 10 },
-        };
-        const coeffs = calculateCoefficients(matrix, 5.0, 1.5, 5);
-        expect(coeffs[0]).toBeGreaterThan(coeffs[1]);
-        expect(coeffs[0]).toBeGreaterThan(coeffs[2]);
-    });
-
-    it('coefficients sum to 1', () => {
-        const matrix: Record<string, Record<string, number>> = {
-            red: { red: 8, yellow: 2, blue: 1 },
-            yellow: { red: 1, yellow: 9, blue: 0 },
-            blue: { red: 0, yellow: 1, blue: 10 },
-        };
-        const coeffs = calculateCoefficients(matrix, 5.0, 1.5, 5);
-        const total = coeffs.reduce((a, b) => a + b, 0);
-        expect(total).toBeCloseTo(1.0, 5);
-    });
-
-    it('enforces minimum coefficient values', () => {
-        const matrix: Record<string, Record<string, number>> = {
-            red: { red: 100, yellow: 0, blue: 0 },
-            yellow: { red: 50, yellow: 5, blue: 50 },
-            blue: { red: 50, yellow: 50, blue: 5 },
-        };
-        const coeffs = calculateCoefficients(matrix, 5.0, 1.5, 5);
-        const minValue = 1 / (10 + 3);
+        const coeffs = calculateCoefficients(m);
+        // red: 20%, yellow: 20%, blue: 20%, black: 20%, green: 20%
         for (const c of coeffs) {
-            expect(c).toBeGreaterThanOrEqual(minValue - 1e-10);
+            expect(c).toBeCloseTo(0.20, 2);
         }
     });
 
-    it('gives newest chord (last) a higher minimum weight', () => {
-        const matrix: Record<string, Record<string, number>> = {
-            red: { red: 10, yellow: 0, blue: 0 },
-            yellow: { red: 0, yellow: 10, blue: 0 },
-            blue: { red: 0, yellow: 0, blue: 0 },
-        };
-        const coeffs = calculateCoefficients(matrix, 5.0, 1.5, 5);
-        expect(coeffs[2]).toBeCloseTo(1 / 3, 5);
+    // Level 5, but blue is confused with red 60% of the time (12 out of 20).
+    // Blue gets boosted to ~32%, red gets a smaller boost to ~18% (mistaken-for weight),
+    // others stay at ~17%.
+    it('level 5, blue confused with red 60% → blue 32%, red 18%, others 17%', () => {
+        const chords = ['red', 'yellow', 'blue', 'black', 'green'];
+        const m = zeroMatrix(chords);
+        m['red']['red'] = 20;
+        m['yellow']['yellow'] = 20;
+        m['blue']['blue'] = 8;
+        m['blue']['red'] = 12;    // blue played, player said red
+        m['black']['black'] = 20;
+        m['green']['green'] = 20;
+
+        const coeffs = calculateCoefficients(m);
+        // red: 17.9%, yellow: 16.7%, blue: 32.1%, black: 16.7%, green: 16.7%
+        expect(coeffs[0]).toBeCloseTo(0.179, 2);  // red (boosted as mistaken-for target)
+        expect(coeffs[1]).toBeCloseTo(0.167, 2);  // yellow
+        expect(coeffs[2]).toBeCloseTo(0.321, 2);  // blue (struggling chord)
+        expect(coeffs[3]).toBeCloseTo(0.167, 2);  // black
+        expect(coeffs[4]).toBeCloseTo(0.167, 2);  // green
+    });
+
+    // Player just added a 4th chord (black) and has no data on it yet.
+    // Black is below the threshold (< 5 identifications) → gets default weight 1/4 = 25%.
+    // Other chords are all perfect, so they split the remaining 75% equally.
+    it('4th chord just added with no data → all 25% (default for new chord)', () => {
+        const chords = ['red', 'yellow', 'blue', 'black'];
+        const m = zeroMatrix(chords);
+        m['red']['red'] = 20;
+        m['yellow']['yellow'] = 20;
+        m['blue']['blue'] = 20;
+        // black: all zeros — below threshold
+
+        const coeffs = calculateCoefficients(m);
+        // red: 25%, yellow: 25%, blue: 25%, black: 25%
+        for (const c of coeffs) {
+            expect(c).toBeCloseTo(0.25, 2);
+        }
+    });
+
+    // Level 9 (all 9 white chords). Pink is confused with red, brown with yellow,
+    // each getting wrong 75% of the time. The 7 easy chords hit the floor (~9.3%),
+    // and pink/brown each get ~17.5%.
+    it('level 9, struggling with pink and brown → those get 17.5%, easy chords at floor 9.3%', () => {
+        const chords = ['red', 'yellow', 'blue', 'black', 'green', 'orange', 'purple', 'pink', 'brown'];
+        const m = zeroMatrix(chords);
+        m['red']['red'] = 20;
+        m['yellow']['yellow'] = 20;
+        m['blue']['blue'] = 20;
+        m['black']['black'] = 20;
+        m['green']['green'] = 20;
+        m['orange']['orange'] = 20;
+        m['purple']['purple'] = 20;
+        m['pink']['pink'] = 5;
+        m['pink']['red'] = 15;     // pink played, player said red
+        m['brown']['brown'] = 5;
+        m['brown']['yellow'] = 15;  // brown played, player said yellow
+
+        const coeffs = calculateCoefficients(m);
+        // Easy chords (red through purple): ~9.3% each (floor = 1/(1.2*9))
+        for (let i = 0; i < 7; i++) {
+            expect(coeffs[i]).toBeCloseTo(0.093, 2);
+        }
+        // Struggling chords: ~17.5% each
+        expect(coeffs[7]).toBeCloseTo(0.175, 2);  // pink
+        expect(coeffs[8]).toBeCloseTo(0.175, 2);  // brown
+    });
+
+    // 2 chords, red confused with yellow 40% of the time (8 out of 20).
+    // Red gets heavily boosted to ~58%, yellow gets ~42%.
+    it('2 chords, red confused with yellow 40% → red 58%, yellow 42%', () => {
+        const chords = ['red', 'yellow'];
+        const m = zeroMatrix(chords);
+        m['red']['red'] = 12;
+        m['red']['yellow'] = 8;   // red played, player said yellow
+        m['yellow']['yellow'] = 20;
+
+        const coeffs = calculateCoefficients(m);
+        // red: 58.3%, yellow: 41.7%
+        expect(coeffs[0]).toBeCloseTo(0.583, 2);  // red (struggling)
+        expect(coeffs[1]).toBeCloseTo(0.417, 2);  // yellow (mistaken-for target)
     });
 });

@@ -63,7 +63,10 @@ export function stopCurrentAudio(): void {
 }
 
 
-function _getWeights(): number[] {
+function _getWeights(): number[] | undefined {
+    if (getCurrentProfile().chord_selection_mode !== 'adaptive') {
+        return undefined;
+    }
     if (_CURRENT_COEFFICIENTS !== null) {
         return _CURRENT_COEFFICIENTS;
     }

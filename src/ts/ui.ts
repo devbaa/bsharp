@@ -6,6 +6,7 @@ import {
     DEFAULT_SHOW_CHORD_MODE, DEFAULT_REVEAL_CHORD_MODE, DEFAULT_CHORD_DISPLAY_MODE,
     DEFAULT_SINGLE_NOTE_MODE, DEFAULT_SINGLE_NOTE_CORRECTNESS_MODE,
     DEFAULT_PERSIST_REACTION_FACE, DEFAULT_ENABLE_ONBOARDING_HINTS, DEFAULT_COLOR_SCHEME,
+    DEFAULT_CHORD_SELECTION_MODE,
 } from './state';
 import {
     calculatePercentage, calculateNeutralLevel, getCatEmoji, normalizeStatsObject
@@ -45,8 +46,15 @@ export function setCatEmoji(level: number): void {
     if (elem) elem.innerHTML = emoji;
 }
 
+const NEUTRAL_EMOJI_LEVEL = 2;
+
 export function resetCatEmoji(): void {
-    setCatEmoji(calculateNeutralLevel(calculatePercentage()));
+    const stats = getCurrentProfile().stats;
+    if (stats.identifications === 0) {
+        setCatEmoji(NEUTRAL_EMOJI_LEVEL);
+        return;
+    }
+    setCatEmoji(calculateNeutralLevel(calculatePercentage(stats.correct, stats.identifications)));
 }
 
 // --- Stats Display ---
@@ -381,6 +389,7 @@ function getProfileSettings(): {
     chord_display_mode: string; single_note_mode: string;
     single_note_correctness_mode: string; persist_reaction_face: boolean;
     enable_onboarding_hints: boolean; color_scheme: string;
+    chord_selection_mode: string;
 } {
     const profileContainer = document.getElementById('profile-info-container')!;
     const profileNameElem = document.getElementById('profile_name_setting') as HTMLInputElement;
@@ -405,6 +414,7 @@ function getProfileSettings(): {
     const persistReactionFace = (document.getElementById('persist_reaction_face_setting') as HTMLInputElement).checked;
     const enableOnboardingHints = (document.getElementById('enable_onboarding_hints_setting') as HTMLInputElement).checked;
     const colorScheme = (document.getElementById('color-scheme-selector') as HTMLSelectElement).value;
+    const chordSelectionMode = (document.getElementById('chord-selection-mode-selector') as HTMLSelectElement).value;
 
     return {
         name: profileName,
@@ -419,6 +429,7 @@ function getProfileSettings(): {
         persist_reaction_face: persistReactionFace,
         enable_onboarding_hints: enableOnboardingHints,
         color_scheme: colorScheme,
+        chord_selection_mode: chordSelectionMode,
     };
 }
 
@@ -451,6 +462,9 @@ function clearProfileDialog(): void {
 
     const colorSchemeSelector = document.getElementById('color-scheme-selector') as HTMLSelectElement;
     if (colorSchemeSelector) colorSchemeSelector.value = DEFAULT_COLOR_SCHEME;
+
+    const chordSelectionModeSelector = document.getElementById('chord-selection-mode-selector') as HTMLSelectElement;
+    if (chordSelectionModeSelector) chordSelectionModeSelector.value = DEFAULT_CHORD_SELECTION_MODE;
 
     profileDialog.dataset.id = 'null';
 }
@@ -486,6 +500,7 @@ function populateProfileSettings(): void {
     (document.getElementById('persist_reaction_face_setting') as HTMLInputElement).checked = profile.persist_reaction_face;
     (document.getElementById('enable_onboarding_hints_setting') as HTMLInputElement).checked = profile.enable_onboarding_hints;
     (document.getElementById('color-scheme-selector') as HTMLSelectElement).value = profile.color_scheme;
+    (document.getElementById('chord-selection-mode-selector') as HTMLSelectElement).value = profile.chord_selection_mode;
 
     profileDialog.dataset.id = String(profile.id);
 
@@ -539,6 +554,7 @@ export function openProfileAdder(): void {
     (document.getElementById('persist_reaction_face_setting') as HTMLInputElement).checked = DEFAULT_PERSIST_REACTION_FACE;
     (document.getElementById('enable_onboarding_hints_setting') as HTMLInputElement).checked = DEFAULT_ENABLE_ONBOARDING_HINTS;
     (document.getElementById('color-scheme-selector') as HTMLSelectElement).value = DEFAULT_COLOR_SCHEME;
+    (document.getElementById('chord-selection-mode-selector') as HTMLSelectElement).value = DEFAULT_CHORD_SELECTION_MODE;
 
     // Pre-select the first icon
     const firstIcon = profileContainer.querySelector("input[name='profile_icon_selector']") as HTMLInputElement | null;
@@ -575,6 +591,7 @@ export function addProfile(): void {
             newProfileValues.persist_reaction_face,
             newProfileValues.enable_onboarding_hints,
             newProfileValues.color_scheme,
+            newProfileValues.chord_selection_mode,
         );
         STATE.profiles[profile.id] = profile;
         saveState();
@@ -611,6 +628,7 @@ export function submitProfileChanges(): void {
     currentProfile.persist_reaction_face = profileValues.persist_reaction_face;
     currentProfile.enable_onboarding_hints = profileValues.enable_onboarding_hints;
     currentProfile.color_scheme = profileValues.color_scheme;
+    currentProfile.chord_selection_mode = profileValues.chord_selection_mode;
 
     saveState();
 
