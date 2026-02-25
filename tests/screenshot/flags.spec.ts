@@ -85,6 +85,99 @@ function seedStateAtLevel(chord: string): string {
   return JSON.stringify(state);
 }
 
+// Scan a PNG buffer for the topmost and bottommost rows containing visible pixels.
+function glyphBounds(buf: Buffer): { top: number; bottom: number } {
+  const { PNG } = require("pngjs");
+  const png = PNG.sync.read(buf);
+  const { width, height, data } = png;
+  let top = height, bottom = 0;
+  for (let row = 0; row < height; row++) {
+    for (let col = 0; col < width; col++) {
+      if (data[(row * width + col) * 4 + 3] > 10) {
+        top = Math.min(top, row);
+        bottom = Math.max(bottom, row);
+        break;
+      }
+    }
+  }
+  return { top, bottom };
+}
+
+test("nav bar icons are consistently sized and aligned", async ({ page }) => {
+  await page.setViewportSize({ width: 900, height: 1200 });
+  await page.goto("/");
+
+  // Strip all backgrounds so element screenshots contain only the glyph
+  await page.evaluate(() => {
+    document.querySelectorAll("*").forEach((el) => {
+      (el as HTMLElement).style.setProperty("background", "transparent", "important");
+    });
+  });
+
+  const icons = page.locator(".expansion-container i.fa");
+  const count = await icons.count();
+
+  // Measure each icon's absolute glyph top/bottom (in screenshot pixels)
+  const iconRects = await icons.evaluateAll((els) =>
+    els.map((el) => {
+      const r = el.getBoundingClientRect();
+      return { top: r.top, bottom: r.bottom, height: r.height };
+    }),
+  );
+
+  const absoluteTops: number[] = [];
+  const absoluteBottoms: number[] = [];
+  const dpr = await page.evaluate(() => window.devicePixelRatio || 1);
+
+  for (let i = 0; i < count; i++) {
+    const buf = await icons.nth(i).screenshot({ omitBackground: true });
+    const bounds = glyphBounds(buf);
+    const absTop = iconRects[i].top + bounds.top / dpr;
+    const absBottom = iconRects[i].top + bounds.bottom / dpr;
+    absoluteTops.push(absTop);
+    absoluteBottoms.push(absBottom);
+  }
+
+  // Restore backgrounds for the visual snapshot
+  await page.evaluate(() => {
+    document.querySelectorAll("*").forEach((el) => {
+      (el as HTMLElement).style.removeProperty("background");
+    });
+  });
+
+  // Draw two shared reference lines: one at the lowest top, one at the highest bottom.
+  // All glyphs should touch both lines (no gap above or below).
+  const topLine = Math.min(...absoluteTops);
+  const bottomLine = Math.max(...absoluteBottoms);
+
+  await page.evaluate(({ topLine, bottomLine }) => {
+    const container = document.querySelector(".expansion-container")!;
+    const containerRect = container.getBoundingClientRect();
+    for (const y of [topLine, bottomLine]) {
+      const line = document.createElement("div");
+      line.style.cssText = `
+        position: absolute; left: 0;
+        top: ${y - containerRect.top}px;
+        width: 100%; height: 1px;
+        background: red; pointer-events: none; z-index: 9999;
+      `;
+      container.appendChild(line);
+    }
+  }, { topLine, bottomLine });
+
+  await expect(page.locator(".expansion-container")).toHaveScreenshot(
+    "nav-bar-tablet.png",
+  );
+
+  // Assert every glyph touches both lines (within 2 CSS pixels tolerance)
+  const tolerance = 2;
+  for (let i = 0; i < count; i++) {
+    const name = await icons.nth(i).getAttribute("class");
+    expect(absoluteTops[i], `${name} top should touch top line`).toBeLessThanOrEqual(topLine + tolerance);
+    expect(absoluteBottoms[i], `${name} bottom should touch bottom line`).toBeGreaterThanOrEqual(bottomLine - tolerance);
+  }
+});
+
 test("tablet layout at high level - no menu overlap", async ({ page }) => {
   await page.setViewportSize({ width: 900, height: 1200 });
   await page.addInitScript((stateJson: string) => {

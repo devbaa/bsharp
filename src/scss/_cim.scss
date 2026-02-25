@@ -564,6 +564,17 @@ body.colorscheme-light div.flag {
     box-shadow: inset 0 0 0 2px black;
 }
 
+/* Normalize nav icon visual sizes and vertical alignment */
+#home-button .fa {
+    font-size: 1.19em;
+    vertical-align: -0.05em;
+}
+
+#trainer-infobox-trigger .fa {
+    font-size: 0.92em;
+    vertical-align: 0.05em;
+}
+
 /* Container styles */
 .infobox-container {
   display: inline-block;
