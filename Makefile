@@ -1,4 +1,4 @@
-.PHONY: build check clean test test-unit test-ui test-screenshot test-screenshot-update android-deploy android-release icons generate-audio move-downloaded-chords move-downloaded-notes convert-audio-to-mp3 play-store-screenshots
+.PHONY: build check clean test test-unit test-ui test-integration test-screenshot test-screenshot-update android-deploy android-release icons generate-audio move-downloaded-chords move-downloaded-notes convert-audio-to-mp3 play-store-screenshots
 
 build: dist/bsharp.js dist/style.css dist/index.html dist/static
 
@@ -21,16 +21,19 @@ test-unit:
 	npx vitest run
 
 test-ui: build
-	npx playwright test
+	npx playwright test --config tests/playwright.config.ts
 
 test: test-unit build
-	npx playwright test
+	npx playwright test --config tests/playwright.config.ts
+
+test-integration: build
+	npx playwright test --config tests/playwright.integration.config.ts
 
 test-screenshot: build
-	npx playwright test --config playwright.screenshot.config.ts
+	npx playwright test --config tests/playwright.screenshot.config.ts
 
 test-screenshot-update: build
-	npx playwright test --config playwright.screenshot.config.ts --update-snapshots=all
+	npx playwright test --config tests/playwright.screenshot.config.ts --update-snapshots=all
 
 android-deploy: build
 	mkdir -p android/app/src/main/assets

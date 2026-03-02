@@ -1,8 +1,8 @@
 import { defineConfig } from "@playwright/test";
-import { DEVICE } from "./tests/device";
+import { DEVICE } from "./device";
 
 export default defineConfig({
-  testDir: "./tests/ui",
+  testDir: "./ui",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: 0,
@@ -18,7 +18,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npx http-server dist -p 8080 -c-1 --silent",
+    command: "npx http-server ../dist -p 8080 -c-1 --silent",
     url: "http://localhost:8080",
     reuseExistingServer: !process.env.CI,
   },
