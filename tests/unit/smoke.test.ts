@@ -2,6 +2,17 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { getCurrentProfile } from '../../src/ts/state';
+import { getUiStore } from '../../src/ts/ui_store';
+
+function visibleColors(): string[] {
+    return [...document.querySelectorAll('#flag-holder .flag-wrapper.visible')]
+        .map((el) => (el as HTMLElement).dataset.color!);
+}
+
+function pressKey(key: string): void {
+    document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+}
 
 function loadBodyHtml(): string {
     const html = readFileSync(resolve(__dirname, '../../src/index.html'), 'utf8');
@@ -82,5 +93,23 @@ describe('app smoke (jsdom + Alpine)', () => {
         expect(document.getElementById('stats-total')!.textContent).toBe('1');
         expect(document.getElementById('stats-correct')!.textContent).toBe('1');
         expect(flag.classList.contains('flag-correct')).toBe(true);
+    });
+
+    it('number-key shortcut selects the matching colour and prompts level-up on a perfect session', async () => {
+        // Shrink the target so the next correct answer completes the level.
+        getCurrentProfile().target_number = 1;
+
+        window.next_audio();
+        await new Promise((r) => setTimeout(r, 800));
+
+        const target = window.__bsharp_correct_color()!;
+        const index = visibleColors().indexOf(target);
+        pressKey(index === 9 ? '0' : String(index + 1));
+        await tick();
+
+        // The keyboard handler routed through to a correct identification...
+        expect(document.getElementById('stats-correct')!.textContent).toBe('2');
+        // ...and a perfect completed session offers the next level.
+        expect(getUiStore().levelUp).toBe(true);
     });
 });

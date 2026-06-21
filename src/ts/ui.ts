@@ -6,7 +6,7 @@ import {
     DEFAULT_SHOW_CHORD_MODE, DEFAULT_REVEAL_CHORD_MODE, DEFAULT_CHORD_DISPLAY_MODE,
     DEFAULT_SINGLE_NOTE_MODE, DEFAULT_SINGLE_NOTE_CORRECTNESS_MODE,
     DEFAULT_PERSIST_REACTION_FACE, DEFAULT_ENABLE_ONBOARDING_HINTS, DEFAULT_COLOR_SCHEME,
-    DEFAULT_CHORD_SELECTION_MODE,
+    DEFAULT_CHORD_SELECTION_MODE, DEFAULT_ANSWER_SURFACE,
 } from './state';
 import {
     calculatePercentage, calculateNeutralLevel, getCatEmoji, normalizeStatsObject
@@ -83,15 +83,26 @@ export function updateStatsDisplay(): void {
 
     const correct = stats.correct;
     const identifications = stats.identifications;
+    const target = getCurrentTargetNumber();
     const statsDisplayElem = document.getElementById('chord-stats-display');
     if (statsDisplayElem) {
         updateStatsContainer(statsDisplayElem, correct, identifications);
     }
 
-    if (identifications >= getCurrentTargetNumber()) {
+    const done = identifications >= target;
+    if (done) {
         containerElem.classList.add('done');
     } else {
         containerElem.classList.remove('done');
+    }
+
+    // Progress bar toward the target identification count.
+    const progressBar = document.getElementById('progress-bar');
+    if (progressBar) {
+        const pct = target > 0 ? Math.min(100, (identifications / target) * 100) : 0;
+        progressBar.style.width = pct + '%';
+        progressBar.classList.toggle('complete', done);
+        progressBar.classList.toggle('perfect', done && correct === identifications);
     }
 
     if (correct === identifications) {
@@ -211,6 +222,12 @@ export function applyColorScheme(scheme: string): void {
     }
 }
 
+// Switch the answer buttons between colored "flags" and the piano-key skin.
+export function applyAnswerSurface(surface: string): void {
+    const holder = document.getElementById('flag-holder');
+    if (holder) holder.classList.toggle('piano-mode', surface === 'piano');
+}
+
 // --- Profile UI ---
 
 export function populateProfileUiElements(): void {
@@ -297,7 +314,7 @@ function getProfileSettings(): {
     chord_display_mode: string; single_note_mode: string;
     single_note_correctness_mode: string; persist_reaction_face: boolean;
     enable_onboarding_hints: boolean; color_scheme: string;
-    chord_selection_mode: string;
+    chord_selection_mode: string; answer_surface: string;
 } {
     const profileContainer = document.getElementById('profile-info-container')!;
     const profileNameElem = document.getElementById('profile_name_setting') as HTMLInputElement;
@@ -323,6 +340,7 @@ function getProfileSettings(): {
     const enableOnboardingHints = (document.getElementById('enable_onboarding_hints_setting') as HTMLInputElement).checked;
     const colorScheme = (document.getElementById('color-scheme-selector') as HTMLSelectElement).value;
     const chordSelectionMode = (document.getElementById('chord-selection-mode-selector') as HTMLSelectElement).value;
+    const answerSurface = (document.getElementById('answer-surface-selector') as HTMLSelectElement).value;
 
     return {
         name: profileName,
@@ -338,6 +356,7 @@ function getProfileSettings(): {
         enable_onboarding_hints: enableOnboardingHints,
         color_scheme: colorScheme,
         chord_selection_mode: chordSelectionMode,
+        answer_surface: answerSurface,
     };
 }
 
@@ -374,6 +393,9 @@ function clearProfileDialog(): void {
     const chordSelectionModeSelector = document.getElementById('chord-selection-mode-selector') as HTMLSelectElement;
     if (chordSelectionModeSelector) chordSelectionModeSelector.value = DEFAULT_CHORD_SELECTION_MODE;
 
+    const answerSurfaceSelector = document.getElementById('answer-surface-selector') as HTMLSelectElement;
+    if (answerSurfaceSelector) answerSurfaceSelector.value = DEFAULT_ANSWER_SURFACE;
+
     profileDialog.dataset.id = 'null';
 }
 
@@ -409,6 +431,7 @@ function populateProfileSettings(): void {
     (document.getElementById('enable_onboarding_hints_setting') as HTMLInputElement).checked = profile.enable_onboarding_hints;
     (document.getElementById('color-scheme-selector') as HTMLSelectElement).value = profile.color_scheme;
     (document.getElementById('chord-selection-mode-selector') as HTMLSelectElement).value = profile.chord_selection_mode;
+    (document.getElementById('answer-surface-selector') as HTMLSelectElement).value = profile.answer_surface;
 
     profileDialog.dataset.id = String(profile.id);
 
@@ -454,6 +477,7 @@ export function openProfileAdder(): void {
     (document.getElementById('enable_onboarding_hints_setting') as HTMLInputElement).checked = DEFAULT_ENABLE_ONBOARDING_HINTS;
     (document.getElementById('color-scheme-selector') as HTMLSelectElement).value = DEFAULT_COLOR_SCHEME;
     (document.getElementById('chord-selection-mode-selector') as HTMLSelectElement).value = DEFAULT_CHORD_SELECTION_MODE;
+    (document.getElementById('answer-surface-selector') as HTMLSelectElement).value = DEFAULT_ANSWER_SURFACE;
 
     // Pre-select the first icon
     const firstIcon = profileContainer.querySelector("input[name='profile_icon_selector']") as HTMLInputElement | null;
@@ -491,6 +515,7 @@ export function addProfile(): void {
             newProfileValues.enable_onboarding_hints,
             newProfileValues.color_scheme,
             newProfileValues.chord_selection_mode,
+            newProfileValues.answer_surface,
         );
         STATE.profiles[profile.id] = profile;
         saveState();
@@ -529,6 +554,7 @@ export function submitProfileChanges(): void {
     currentProfile.enable_onboarding_hints = profileValues.enable_onboarding_hints;
     currentProfile.color_scheme = profileValues.color_scheme;
     currentProfile.chord_selection_mode = profileValues.chord_selection_mode;
+    currentProfile.answer_surface = profileValues.answer_surface;
 
     saveState();
 
@@ -576,6 +602,7 @@ export function setCurrentProfile(profile: Profile): void {
     populateProfileUiElements();
     setChordDisplayMode(profile.chord_display_mode);
     applyColorScheme(profile.color_scheme);
+    applyAnswerSurface(profile.answer_surface);
     _changeSelectorFn(profile.current_chord);
     saveState();
 }

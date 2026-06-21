@@ -8,6 +8,7 @@ export type PanelName = '' | 'info' | 'trainer' | 'stats' | 'profile';
 export interface UiStore {
     menuOpen: boolean;
     panel: PanelName;
+    levelUp: boolean;
     toggleMenu(): void;
     open(name: Exclude<PanelName, ''>): void;
     home(): void;
