@@ -104,6 +104,12 @@ export function updateStatsDisplay(): void {
         progressBar.classList.toggle('complete', done);
         progressBar.classList.toggle('perfect', done && correct === identifications);
     }
+    const progressLabel = document.getElementById('progress-label');
+    if (progressLabel) {
+        progressLabel.textContent = done
+            ? (correct === identifications ? 'Level complete!' : `${identifications} / ${target}`)
+            : `${Math.min(identifications, target)} / ${target} to next level`;
+    }
 
     if (correct === identifications) {
         containerElem.classList.add('perfect');
@@ -226,6 +232,26 @@ export function applyColorScheme(scheme: string): void {
 export function applyAnswerSurface(surface: string): void {
     const holder = document.getElementById('flag-holder');
     if (holder) holder.classList.toggle('piano-mode', surface === 'piano');
+    updateAnswerSurfaceToggle();
+}
+
+// Keep the on-screen flags/piano toggle button in sync with the current profile.
+export function updateAnswerSurfaceToggle(): void {
+    const btn = document.getElementById('surface-toggle-btn');
+    if (!btn) return;
+    const isPiano = getCurrentProfile().answer_surface === 'piano';
+    btn.innerHTML = isPiano
+        ? '<i class="fa fa-music" aria-hidden="true"></i> Piano'
+        : '<i class="fa fa-flag" aria-hidden="true"></i> Flags';
+    btn.setAttribute('aria-label', isPiano ? 'Answer buttons: piano keys' : 'Answer buttons: colored flags');
+}
+
+// Flip the answer surface from the main screen (mirrors the profile setting).
+export function toggleAnswerSurface(): void {
+    const profile = getCurrentProfile();
+    profile.answer_surface = profile.answer_surface === 'piano' ? 'flags' : 'piano';
+    applyAnswerSurface(profile.answer_surface);
+    saveState();
 }
 
 // --- Profile UI ---

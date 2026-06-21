@@ -112,4 +112,12 @@ describe('app smoke (jsdom + Alpine)', () => {
         // ...and a perfect completed session offers the next level.
         expect(getUiStore().levelUp).toBe(true);
     });
+
+    it('the on-screen toggle switches the answer surface between flags and piano', () => {
+        const holder = document.getElementById('flag-holder')!;
+        const before = holder.classList.contains('piano-mode');
+        window.toggle_answer_surface();
+        expect(holder.classList.contains('piano-mode')).toBe(!before);
+        expect(document.getElementById('surface-toggle-btn')!.textContent).toContain(before ? 'Flags' : 'Piano');
+    });
 });
