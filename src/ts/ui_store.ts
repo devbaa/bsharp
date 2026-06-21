@@ -14,6 +14,16 @@ export interface UiStore {
     close(): void;
 }
 
+// Register the store's shape with Alpine's type system (declaration merging on
+// the built-in `Stores` interface). This makes `Alpine.store('ui', ...)`
+// type-checked on registration and `Alpine.store('ui')` return `UiStore` with
+// no cast, and types `$store.ui` in Alpine contexts.
+declare module 'alpinejs' {
+    interface Stores {
+        ui: UiStore;
+    }
+}
+
 export function getUiStore(): UiStore {
-    return Alpine.store('ui') as UiStore;
+    return Alpine.store('ui');
 }

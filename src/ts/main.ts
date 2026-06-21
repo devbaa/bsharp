@@ -16,7 +16,7 @@ import {
     registerGameCallbacks, onPanelOpen,
 } from './ui';
 import { cleanSessionHistory } from './session_cleanup';
-import { PanelName, UiStore } from './ui_store';
+import { PanelName } from './ui_store';
 
 // Game/profile actions exposed on `window` for the inline onclick handlers in
 // index.html, plus the test hooks read by the Playwright/jsdom suites.
@@ -62,7 +62,7 @@ Alpine.store('ui', {
     close() {
         this.panel = '';
     },
-} satisfies UiStore);
+});
 
 window.play_audio = playAudio;
 window.select_flag = selectFlag;
