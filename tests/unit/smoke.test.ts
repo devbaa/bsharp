@@ -113,11 +113,34 @@ describe('app smoke (jsdom + Alpine)', () => {
         expect(getUiStore().levelUp).toBe(true);
     });
 
-    it('the on-screen toggle switches the answer surface between flags and piano', () => {
-        const holder = document.getElementById('flag-holder')!;
-        const before = holder.classList.contains('piano-mode');
+    it('the on-screen toggle switches to the piano keyboard surface', () => {
+        const container = document.querySelector('.cim-container')!;
+        expect(container.classList.contains('surface-piano')).toBe(false);
+
         window.toggle_answer_surface();
-        expect(holder.classList.contains('piano-mode')).toBe(!before);
-        expect(document.getElementById('surface-toggle-btn')!.textContent).toContain(before ? 'Flags' : 'Piano');
+
+        expect(container.classList.contains('surface-piano')).toBe(true);
+        // The keyboard exposes colored, pressable answer keys for the level.
+        expect(document.querySelectorAll('#piano-holder .answer-key.active').length).toBeGreaterThan(0);
+        expect(document.getElementById('surface-toggle-btn')!.textContent).toContain('Piano');
+    });
+
+    it('piano surface: a number key presses the matching colored key', async () => {
+        // We are in piano mode from the previous test; clear leftover state.
+        getUiStore().levelUp = false;
+        getCurrentProfile().target_number = 25;
+
+        window.next_audio();
+        await new Promise((r) => setTimeout(r, 800));
+
+        const target = window.__bsharp_correct_color()!;
+        const active = [...document.querySelectorAll('#piano-holder .answer-key.active')]
+            .map((el) => (el as HTMLElement).dataset.color!);
+        const index = active.indexOf(target);
+        pressKey(index === 9 ? '0' : String(index + 1));
+        await tick();
+
+        const key = document.querySelector(`#piano-holder [data-color="${target}"] > .flag`)!;
+        expect(key.classList.contains('flag-correct')).toBe(true);
     });
 });

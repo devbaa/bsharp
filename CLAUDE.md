@@ -56,7 +56,7 @@ vite.config.ts       # Vite + @tailwindcss/vite config (root: src, outDir: ../di
 - **Instrument selector**: Removed from UI (only one instrument: pre-generated piano)
 - **Keyboard controls** (`main.ts` keydown): `1`-`9`/`0` pick the Nth visible flag, `Space`/`P` plays, `Enter`/`→`/`N` advances, `Esc` closes overlays
 - **Level-up prompt**: a perfect session at the target count opens the `#level-up-modal` (Alpine `$store.ui.levelUp`); `advance_level()` switches the selector to the next chord. A progress bar (`#progress-bar`) tracks progress to the target
-- **Answer surface** (`answer_surface` profile setting): toggles the colored flags between flag and piano-key styling via the `piano-mode` class on `#flag-holder` (`applyAnswerSurface`)
+- **Answer surface** (`answer_surface` profile setting, plus an on-screen `#surface-toggle-btn`): switches between the colored flags (`#flag-holder`) and a full piano keyboard (`#piano-holder`, built by `piano.ts`) where only the current level's chord keys are colored and pressable. `applyAnswerSurface` toggles the `surface-piano` class on `.cim-container`; `getActiveAnswerHolder()` tells the game which surface to read for selection/reveal
 
 ## Chord Data
 

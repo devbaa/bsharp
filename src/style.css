@@ -1196,29 +1196,94 @@ body.colorscheme-light .progress-bar {
 }
 
 /* ============================================================= */
-/* Piano-key skin (answer surface toggle)                       */
+/* Piano keyboard answer surface                                */
 /* ============================================================= */
 
-#flag-holder.piano-mode .flag {
-  border-radius: 0 0 10px 10px;
-  border: 1px solid rgba(0, 0, 0, 0.55);
-  background-image: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.45),
-    rgba(255, 255, 255, 0) 28%,
-    rgba(0, 0, 0, 0.22) 100%
-  );
-  box-shadow: inset 0 -10px 16px rgba(0, 0, 0, 0.3), 0 6px 8px rgba(0, 0, 0, 0.5);
+/* Show flags by default; swap to the piano when surface-piano is set. */
+.piano-holder {
+  display: none;
 }
 
-body.colorscheme-dark #flag-holder.piano-mode .flag {
-  box-shadow: inset 0 -10px 16px rgba(0, 0, 0, 0.45), 0 6px 9px rgba(0, 0, 0, 0.7);
+div.cim-container.surface-piano > #flag-holder {
+  display: none;
 }
 
-/* Keep the answer outline readable on top of the key gradient. */
-#flag-holder.piano-mode .flag-correct {
-  outline-offset: 2px;
+div.cim-container.surface-piano > .piano-holder {
+  display: block;
 }
+
+div.cim-container.panel-open > .piano-holder {
+  display: none;
+}
+
+.piano-holder {
+  position: relative;
+  width: 100%;
+  flex-grow: 2;
+  align-self: center;
+  min-height: 150px;
+  max-height: 40vh;
+  max-height: 40dvh;
+  box-sizing: border-box;
+  padding: 0 0.25rem;
+}
+
+.piano-whites {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+.piano-key {
+  box-sizing: border-box;
+  position: relative;
+}
+
+.piano-key.white-key {
+  flex: 1 1 0;
+  height: 100%;
+  background: #fafafa;
+  border: 1px solid #2a2a2a;
+  border-radius: 0 0 6px 6px;
+}
+
+.piano-blacks {
+  position: absolute;
+  top: 0;
+  left: 0.25rem;
+  right: 0.25rem;
+  height: 62%;
+  pointer-events: none;
+}
+
+.piano-key.black-key {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: #141414;
+  border: 1px solid #000;
+  border-radius: 0 0 4px 4px;
+  z-index: 2;
+  pointer-events: auto;
+}
+
+/* Colored answer fill, shown only for active (current-level) keys. */
+.piano-key .flag {
+  display: none;
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  border-radius: inherit;
+  cursor: pointer;
+}
+
+.piano-key.answer-key.active .flag {
+  display: flex;
+}
+
+/* A faint dot marks pressable keys before they are tinted (none, since active
+   keys are always tinted); inactive answer keys just look like plain keys. */
 
 .progress-label {
   text-align: center;

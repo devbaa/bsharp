@@ -7,7 +7,7 @@ import {
 } from './state';
 import { getCurrentCoefficients, updateStartTimeIfNeeded, updateStats } from './stats';
 import { getAudioFiles, audioFileElem, playChordFiles, preloadAudio } from './audio';
-import { populateFlags, updateStatsDisplay, resetCatEmoji, setCatEmoji } from './ui';
+import { populateFlags, updateStatsDisplay, resetCatEmoji, setCatEmoji, getActiveAnswerHolder } from './ui';
 import { dismissOnboardingStep, showOnboardingGuessPrompt, showOnboardingGoNextPrompt, showOnboardingPlayPrompt } from './onboarding';
 import { getUiStore } from './ui_store';
 
@@ -124,7 +124,7 @@ export function selectFlag(elem: HTMLElement): void {
     if (!_AUDIO_PLAYED) return;
 
     const chosenColor = elem.parentElement!.dataset.color!;
-    const flagHolder = document.getElementById('flag-holder')!;
+    const flagHolder = getActiveAnswerHolder() ?? document.getElementById('flag-holder')!;
 
     _EMOJI_LOCK = true;
     updateStartTimeIfNeeded();
@@ -165,13 +165,13 @@ export function selectFlag(elem: HTMLElement): void {
     maybePromptLevelUp();
 }
 
-/** Select the Nth currently-visible flag (used by number-key shortcuts). */
+/** Select the Nth currently-pressable answer (used by number-key shortcuts). */
 export function selectFlagByIndex(index: number): void {
-    const holder = document.getElementById('flag-holder');
+    const holder = getActiveAnswerHolder();
     if (!holder) return;
-    const wrapper = holder.querySelectorAll('.flag-wrapper.visible')[index];
-    if (!wrapper) return;
-    const flag = wrapper.querySelector('.flag');
+    const pressable = holder.querySelectorAll('.flag-wrapper.visible, .answer-key.active')[index];
+    if (!pressable) return;
+    const flag = pressable.querySelector('.flag');
     if (flag instanceof HTMLElement) selectFlag(flag);
 }
 

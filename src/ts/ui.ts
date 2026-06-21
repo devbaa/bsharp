@@ -14,6 +14,7 @@ import {
 import { formatDatetime, getCurrentTimestamp, validInt } from './utils';
 import { resetOnboarding } from './onboarding';
 import { getUiStore } from './ui_store';
+import { buildPiano, populatePiano } from './piano';
 
 let _DOWNLOAD_ENABLED_CLICKS = 0;
 let _DOWNLOAD_ENABLED_LAST_CLICK: number | null = null;
@@ -142,6 +143,7 @@ export function populateFlags(
     chordsOn: () => boolean
 ): void {
     const colors = getSelectedColors();
+    populatePiano(colors);
     const baseElem = document.getElementById('flag-holder');
     if (!baseElem) return;
 
@@ -228,11 +230,22 @@ export function applyColorScheme(scheme: string): void {
     }
 }
 
-// Switch the answer buttons between colored "flags" and the piano-key skin.
+// Switch the answer surface between colored flags and a full piano keyboard.
 export function applyAnswerSurface(surface: string): void {
-    const holder = document.getElementById('flag-holder');
-    if (holder) holder.classList.toggle('piano-mode', surface === 'piano');
+    buildPiano();
+    const isPiano = surface === 'piano';
+    document.querySelector('.cim-container')?.classList.toggle('surface-piano', isPiano);
+    // Keep the piano's active (colored, pressable) keys in sync with the level.
+    const colors = [...document.querySelectorAll('#flag-holder .flag-wrapper.visible')]
+        .map((w) => (w as HTMLElement).dataset.color!);
+    populatePiano(colors);
     updateAnswerSurfaceToggle();
+}
+
+// The currently shown answer surface (flags or piano), used for selection/reveal.
+export function getActiveAnswerHolder(): HTMLElement | null {
+    const isPiano = getCurrentProfile().answer_surface === 'piano';
+    return document.getElementById(isPiano ? 'piano-holder' : 'flag-holder');
 }
 
 // Keep the on-screen flags/piano toggle button in sync with the current profile.
