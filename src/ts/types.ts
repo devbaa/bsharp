@@ -51,6 +51,7 @@ export interface Profile {
     enable_onboarding_hints: boolean;
     color_scheme: string;
     chord_selection_mode: string;
+    answer_surface: string;
     stats: SessionStats;
     current_chord: string;
     current_instrument: string;

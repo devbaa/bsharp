@@ -172,6 +172,13 @@
                         <option value="adaptive">Adaptive</option>
                     </select>
                 </div>
+                <div class="entry-row">
+                    <label for="answer-surface-selector">Answer buttons:</label>
+                    <select class="selector" name="answer_surface_setting" id="answer-surface-selector">
+                        <option value="flags">Colored flags</option>
+                        <option value="piano">Piano keys</option>
+                    </select>
+                </div>
                 <!-- Buttons are hidden by default (.profile-info-container button { display: none }).
                      Use "settings-button" for profile-edit buttons or "add-button" for profile-add buttons;
                      ui.ts adds .visible to the appropriate class when the panel opens. -->
@@ -394,6 +401,10 @@
                 <i class="fa fa-refresh" aria-hidden="true"></i>
             </a>
         </div>
+        <div class="progress-wrapper">
+            <div class="progress-track"><div class="progress-bar" id="progress-bar"></div></div>
+        </div>
+        <div class="kbd-hint">Keys: <b>1-9</b> pick a color &middot; <b>Space</b> play &middot; <b>&rarr;</b> next</div>
         <div class="selectors">
             <select class="selector" name="chords" id="chord-selector" onchange="change_selector()">
             <optgroup label="White chords">
@@ -466,6 +477,18 @@
                     </clipPath>
                 </defs>
             </svg>
+        </div>
+        <!-- Level-up prompt (shown after a perfect target session) -->
+        <div class="modal-overlay" id="level-up-modal"
+             :class="{ visible: $store.ui.levelUp }">
+            <div class="modal-content">
+                <p><strong>Great work!</strong> This level was completed with full accuracy.</p>
+                <p>Ready to move on to the next level?</p>
+                <div class="level-up-buttons">
+                    <button class="button" type="button" @click="$store.ui.levelUp = false">Not yet</button>
+                    <button class="button" type="button" onclick="advance_level()">Next level</button>
+                </div>
+            </div>
         </div>
     </div>
     <script type="module" src="/ts/main.ts"></script>

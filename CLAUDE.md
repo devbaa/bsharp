@@ -54,6 +54,9 @@ vite.config.ts       # Vite + @tailwindcss/vite config (root: src, outDir: ../di
 - **localStorage keys**: `bsharp_state` / `bsharp_session_history` with migration from old `cim_*` keys
 - **Single note trainer**: Code present but feature disabled (requires Tone.js or pre-generated note files)
 - **Instrument selector**: Removed from UI (only one instrument: pre-generated piano)
+- **Keyboard controls** (`main.ts` keydown): `1`-`9`/`0` pick the Nth visible flag, `Space`/`P` plays, `Enter`/`→`/`N` advances, `Esc` closes overlays
+- **Level-up prompt**: a perfect session at the target count opens the `#level-up-modal` (Alpine `$store.ui.levelUp`); `advance_level()` switches the selector to the next chord. A progress bar (`#progress-bar`) tracks progress to the target
+- **Answer surface** (`answer_surface` profile setting): toggles the colored flags between flag and piano-key styling via the `piano-mode` class on `#flag-holder` (`applyAnswerSurface`)
 
 ## Chord Data
 

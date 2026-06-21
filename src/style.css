@@ -48,7 +48,7 @@ body.colorscheme-light {
 
 body.colorscheme-dark {
   color: #dadada;
-  background-color: #212121;
+  background-color: #000;
 }
 
 a {
@@ -185,6 +185,8 @@ div.cim-container.panel-open > .control-wrapper,
 div.cim-container.panel-open > .flag-container,
 div.cim-container.panel-open > .stats,
 div.cim-container.panel-open > .selectors,
+div.cim-container.panel-open > .progress-wrapper,
+div.cim-container.panel-open > .kbd-hint,
 div.cim-container.panel-open > .mode-toggle-container {
   display: none;
 }
@@ -801,7 +803,7 @@ body.colorscheme-light .infobox {
 
 body.colorscheme-dark .infobox {
   color: #dadada;
-  background-color: #212121;
+  background-color: #000;
 }
 
 /* Profile adder / settings panel */
@@ -810,7 +812,7 @@ body.colorscheme-dark .infobox {
 }
 
 body.colorscheme-dark .profile-info-container {
-  background: #212121;
+  background: #000;
 }
 
 body.colorscheme-light .profile-info-container {
@@ -935,7 +937,7 @@ div.stats-history-item > div.session-stats {
 }
 
 body.colorscheme-dark .modal-content {
-  background: #212121;
+  background: #161616;
   color: #dadada;
 }
 
@@ -1125,4 +1127,95 @@ div.use-shapes div.note-wrapper.note-G-sharp4 > div.note {
   width: 2.5em;
   height: 2.5em;
   clip-path: url(#star-clip-path);
+}
+
+/* ============================================================= */
+/* Progress bar / keyboard hint / level-up                      */
+/* ============================================================= */
+
+.progress-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 20rem;
+  margin: 0.75rem auto 0;
+  padding: 0 0.5rem;
+  box-sizing: border-box;
+}
+
+.progress-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+body.colorscheme-light .progress-track {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: #abd1f2;
+  transition: width 0.25s ease;
+}
+
+body.colorscheme-light .progress-bar {
+  background: #0077be;
+}
+
+.progress-bar.complete {
+  background: #00bf00;
+}
+
+.kbd-hint {
+  text-align: center;
+  font-size: 0.8rem;
+  opacity: 0.5;
+  margin-top: 0.4rem;
+}
+
+.kbd-hint b {
+  font-weight: 700;
+}
+
+/* No physical keyboard on touch devices. */
+@media only screen and (max-width: 768px) {
+  .kbd-hint {
+    display: none;
+  }
+}
+
+.level-up-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+/* ============================================================= */
+/* Piano-key skin (answer surface toggle)                       */
+/* ============================================================= */
+
+#flag-holder.piano-mode .flag {
+  border-radius: 0 0 10px 10px;
+  border: 1px solid rgba(0, 0, 0, 0.55);
+  background-image: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.45),
+    rgba(255, 255, 255, 0) 28%,
+    rgba(0, 0, 0, 0.22) 100%
+  );
+  box-shadow: inset 0 -10px 16px rgba(0, 0, 0, 0.3), 0 6px 8px rgba(0, 0, 0, 0.5);
+}
+
+body.colorscheme-dark #flag-holder.piano-mode .flag {
+  box-shadow: inset 0 -10px 16px rgba(0, 0, 0, 0.45), 0 6px 9px rgba(0, 0, 0, 0.7);
+}
+
+/* Keep the answer outline readable on top of the key gradient. */
+#flag-holder.piano-mode .flag-correct {
+  outline-offset: 2px;
 }

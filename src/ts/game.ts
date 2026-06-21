@@ -9,6 +9,7 @@ import { getCurrentCoefficients, updateStartTimeIfNeeded, updateStats } from './
 import { getAudioFiles, audioFileElem, playChordFiles, preloadAudio } from './audio';
 import { populateFlags, updateStatsDisplay, resetCatEmoji, setCatEmoji } from './ui';
 import { dismissOnboardingStep, showOnboardingGuessPrompt, showOnboardingGoNextPrompt, showOnboardingPlayPrompt } from './onboarding';
+import { getUiStore } from './ui_store';
 
 let _COLORS: string[] | null = null;
 let _CHORDS_ON = false;
@@ -160,6 +161,43 @@ export function selectFlag(elem: HTMLElement): void {
     // Single note trainer disabled for now
     const nextButton = document.getElementById('next-chord');
     if (nextButton) nextButton.classList.remove('deactivated');
+
+    maybePromptLevelUp();
+}
+
+/** Select the Nth currently-visible flag (used by number-key shortcuts). */
+export function selectFlagByIndex(index: number): void {
+    const holder = document.getElementById('flag-holder');
+    if (!holder) return;
+    const wrapper = holder.querySelectorAll('.flag-wrapper.visible')[index];
+    if (!wrapper) return;
+    const flag = wrapper.querySelector('.flag');
+    if (flag instanceof HTMLElement) selectFlag(flag);
+}
+
+let _LEVEL_UP_PROMPTED = false;
+
+/** Offer the next level once a session is completed with full accuracy. */
+function maybePromptLevelUp(): void {
+    if (_LEVEL_UP_PROMPTED) return;
+    const stats = getCurrentProfile().stats;
+    if (stats.identifications < getCurrentTargetNumber()) return;
+    if (stats.correct !== stats.identifications) return;
+
+    const chords = Object.keys(CHORDS_TONE);
+    const idx = chords.indexOf(STATE.current_chord);
+    if (idx < 0 || idx >= chords.length - 1) return;
+
+    _LEVEL_UP_PROMPTED = true;
+    getUiStore().levelUp = true;
+}
+
+/** Advance to the next chord level (invoked from the level-up prompt). */
+export function advanceLevel(): void {
+    getUiStore().levelUp = false;
+    const chords = Object.keys(CHORDS_TONE);
+    const next = chords[chords.indexOf(STATE.current_chord) + 1];
+    if (next) changeSelector(next);
 }
 
 export function nextAudio(): void {
@@ -189,6 +227,7 @@ export function resetStats(done = true): void {
     }
     getCurrentProfile().stats = newStats();
     _CURRENT_COEFFICIENTS = null;
+    _LEVEL_UP_PROMPTED = false;
     saveState();
     updateStatsDisplay();
     populateAudio();
