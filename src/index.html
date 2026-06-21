@@ -403,8 +403,12 @@
         </div>
         <div class="progress-wrapper">
             <div class="progress-track"><div class="progress-bar" id="progress-bar"></div></div>
+            <div class="progress-label" id="progress-label"></div>
         </div>
         <div class="kbd-hint">Keys: <b>1-9</b> pick a color &middot; <b>Space</b> play &middot; <b>&rarr;</b> next</div>
+        <div class="surface-toggle">
+            <button type="button" id="surface-toggle-btn" class="button surface-btn" onclick="toggle_answer_surface()">Flags</button>
+        </div>
         <div class="selectors">
             <select class="selector" name="chords" id="chord-selector" onchange="change_selector()">
             <optgroup label="White chords">

@@ -10,7 +10,7 @@ import {
 import { getUiStore } from './ui_store';
 import { initOnboarding } from './onboarding';
 import {
-    applyColorScheme, applyAnswerSurface,
+    applyColorScheme, applyAnswerSurface, toggleAnswerSurface,
     populateProfileUiElements, updateStatsDisplay, setChordDisplayMode,
     addProfile, submitProfileChanges, deleteProfile,
     triggerEasterEgg, downloadState,
@@ -35,6 +35,7 @@ declare global {
         download_state: () => void;
         play_chord: (color: string) => void;
         advance_level: () => void;
+        toggle_answer_surface: () => void;
         __bsharp_correct_color: () => string | null;
         __bsharp_test_deterministic_color?: string | null;
     }
@@ -79,6 +80,7 @@ window.trigger_easter_egg = triggerEasterEgg;
 window.download_state = downloadState;
 window.play_chord = playChord;
 window.advance_level = advanceLevel;
+window.toggle_answer_surface = toggleAnswerSurface;
 window.__bsharp_correct_color = () => _CORRECT_COLOR;
 
 // Stop any playing audio when the user clicks an interactive element.

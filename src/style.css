@@ -1219,3 +1219,28 @@ body.colorscheme-dark #flag-holder.piano-mode .flag {
 #flag-holder.piano-mode .flag-correct {
   outline-offset: 2px;
 }
+
+.progress-label {
+  text-align: center;
+  font-size: 0.75rem;
+  opacity: 0.6;
+  margin-top: 0.3rem;
+  width: 100%;
+}
+
+.surface-toggle {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.75rem;
+}
+
+.surface-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+}
+
+.surface-btn .fa {
+  font-size: 1em;
+}
